@@ -1,7 +1,7 @@
 package log
 
 import (
-	"strings"
+	"regexp"
 )
 
 func NewTestWriter() *TestWriter {
@@ -16,13 +16,14 @@ func (l *TestWriter) HandleLog(e Entry) {
 	l.Entries = append(l.Entries, e)
 }
 
-func (l *TestWriter) Contains(s string) bool {
-	return l.ContainsLevel(s, -1)
+func (l *TestWriter) Match(expr string) bool {
+	return l.MatchLevel(expr, -1)
 }
 
-func (l *TestWriter) ContainsLevel(s string, lvl Level) bool {
+func (l *TestWriter) MatchLevel(expr string, lvl Level) bool {
+	r := regexp.MustCompile(expr)
 	for _, e := range l.Entries {
-		if strings.Contains(e.Message, s) && e.Level == lvl || lvl == -1 {
+		if r.MatchString(e.Message) && e.Level == lvl || lvl == -1 {
 			return true
 		}
 	}

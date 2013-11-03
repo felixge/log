@@ -21,16 +21,16 @@ func TestLogger(t *testing.T) {
 		t.Errorf("Bad #entries: %d", entries)
 	}
 
-	if !w.ContainsLevel("A", Debug) {
+	if !w.MatchLevel("A$", Debug) {
 		t.Errorf("Missing entry: A")
 	}
-	if !w.ContainsLevel("B", Info) {
+	if !w.MatchLevel("B$", Info) {
 		t.Errorf("Missing entry: B")
 	}
-	if !w.ContainsLevel("C", Warn) {
+	if !w.MatchLevel("C$", Warn) {
 		t.Errorf("Missing entry: C")
 	}
-	if !w.ContainsLevel("D", Error) {
+	if !w.MatchLevel("D$", Error) {
 		t.Errorf("Missing entry: D")
 	}
 }
