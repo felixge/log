@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -17,6 +19,8 @@ func ParseLevel(s string) (Level, error) {
 	}
 	return 0, fmt.Errorf("Unknown level: %s", s)
 }
+
+const DefaultFormat = "2006-01-02T15:04:05.000Z [level] message (file:line)"
 
 type Level int
 
@@ -60,6 +64,15 @@ type Entry struct {
 	Line    int
 }
 
+func (e Entry) Format(layout string) string {
+	layout = e.Time.Format(layout)
+	layout = strings.Replace(layout, "level", e.Level.String(), -1)
+	layout = strings.Replace(layout, "message", e.Message, -1)
+	layout = strings.Replace(layout, "file", e.File, -1)
+	layout = strings.Replace(layout, "line", strconv.FormatInt(int64(e.Line), 10), -1)
+	return layout
+}
+
 func NewLogger() *Logger {
 	return &Logger{}
 }
@@ -95,16 +108,15 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 }
 
 func (l *Logger) log(lvl Level, args []interface{}) Entry {
-	file := ""
-	line := 0
 	msg := formatMessage(args)
+	_, file, lines, _ := runtime.Caller(2)
 
 	e := Entry{
-		Time:    time.Now(),
+		Time:    time.Now().UTC(),
 		Level:   lvl,
 		Message: msg,
 		File:    file,
-		Line:    line,
+		Line:    lines,
 	}
 
 	for _, h := range l.handlers {
@@ -127,10 +139,4 @@ func formatMessage(args []interface{}) string {
 
 func entryToError(e Entry) error {
 	return errors.New(e.Message)
-}
-
-const DefaultFormat = "[%s]\t%s\n"
-
-func Format(format string, e Entry) string {
-	return fmt.Sprintf(format, e.Level, e.Message)
 }

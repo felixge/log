@@ -2,6 +2,7 @@ package log
 
 import (
 	"testing"
+	"time"
 )
 
 func TestLogger(t *testing.T) {
@@ -32,5 +33,32 @@ func TestLogger(t *testing.T) {
 	}
 	if !w.MatchLevel("D$", Error) {
 		t.Errorf("Missing entry: D")
+	}
+}
+
+func TestEntryFormat(t *testing.T) {
+	e := Entry{
+		Time:    time.Now(),
+		Level:   Info,
+		Message: "foo",
+		File:    "bar.go",
+		Line:    23,
+	}
+
+	str := e.Format(DefaultFormat)
+	t.Log(str)
+}
+
+func BenchmarkEntryFormat(b *testing.B) {
+	e := Entry{
+		Time:    time.Now(),
+		Level:   Info,
+		Message: "foo",
+		File:    "bar.go",
+		Line:    23,
+	}
+
+	for i := 0; i < b.N; i++ {
+		e.Format("15:04:05.000 [level] message (file:line)")
 	}
 }
