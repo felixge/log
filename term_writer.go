@@ -1,18 +1,18 @@
 package log
 
-//import (
-	//"fmt"
-	//"io"
-//)
+import (
+	"io"
+	"os"
+)
 
-//func NewTermWriter() *TermWriter {
-	//return &TermWriter{w}
-//}
+func NewTermWriter() *TermWriter {
+	return &TermWriter{format: DefaultFormat}
+}
 
-//type TermWriter struct {
-	//w io.Writer
-//}
+type TermWriter struct {
+	format string
+}
 
-//func (l *TermWriter) HandleLog(e Entry) {
-	//fmt.Fprintf(l.w, "[%s]\t%s\n", e.Level, e.Message)
-//}
+func (l *TermWriter) HandleLog(e Entry) {
+	io.WriteString(os.Stdout, Format(l.format, e)+"\n")
+}

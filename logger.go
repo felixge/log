@@ -129,6 +129,8 @@ func entryToError(e Entry) error {
 	return errors.New(e.Message)
 }
 
+const DefaultFormat = "[%s]\t%s\n"
+
 func Format(format string, e Entry) string {
-	return fmt.Sprintf("[%s]\t%s\n", e.Level, e.Message)
+	return fmt.Sprintf(format, e.Level, e.Message)
 }
