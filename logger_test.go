@@ -49,6 +49,7 @@ func TestEntryFormat(t *testing.T) {
 	t.Log(str)
 }
 
+// BenchmarkEntryFormat tests the performance of the entry formatting function.
 func BenchmarkEntryFormat(b *testing.B) {
 	e := Entry{
 		Time:    time.Now(),

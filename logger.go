@@ -112,7 +112,7 @@ func (l *Logger) log(lvl Level, args []interface{}) Entry {
 	_, file, lines, _ := runtime.Caller(2)
 
 	e := Entry{
-		Time:    time.Now().UTC(),
+		Time:    time.Now(),
 		Level:   lvl,
 		Message: msg,
 		File:    file,
