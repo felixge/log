@@ -73,8 +73,12 @@ func (e Entry) Format(layout string) string {
 	return layout
 }
 
-func NewLogger() *Logger {
-	return &Logger{}
+func NewLogger(handlers ...Handler) *Logger {
+	l := &Logger{}
+	for _, h := range handlers {
+		l.Handle(Debug, h)
+	}
+	return l
 }
 
 type Logger struct {

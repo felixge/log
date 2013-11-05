@@ -10,7 +10,7 @@ import (
 // of maximal theoretical log throughput.
 func BenchmarkDiscardLineLogger(b *testing.B) {
 	l := NewLogger()
-	l.Handle(Debug, NewLineWriter(ioutil.Discard))
+	l.Handle(Debug, NewLineWriter(ioutil.Discard, DefaultFormat, nil))
 
 	for i := 0; i < b.N; i++ {
 		l.Debug("Hello %s", "World")
