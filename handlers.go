@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-var DefaultStyle = map[Level]Style{
+var DefaultTermStyle = map[Level]TermStyle{
 	Debug: DarkGrey,
 	Info:  Black,
 	Warn:  Yellow,
@@ -14,12 +14,12 @@ var DefaultStyle = map[Level]Style{
 	Fatal: White | BgRed,
 }
 
-func NewLineWriter(w io.Writer, format string, style map[Level]Style) *LineWriter {
+func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineWriter {
 	return &LineWriter{w: w, format: format, style: style}
 }
 
 func NewTermWriter() *LineWriter {
-	return &LineWriter{w: os.Stdout, format: DefaultFormat, style: DefaultStyle}
+	return &LineWriter{w: os.Stdout, format: DefaultFormat, style: DefaultTermStyle}
 }
 
 func NewTermLogger() *Logger {
@@ -29,13 +29,13 @@ func NewTermLogger() *Logger {
 type LineWriter struct {
 	w      io.Writer
 	format string
-	style map[Level]Style
+	style map[Level]TermStyle
 }
 
 func (l *LineWriter) HandleLog(e Entry) {
 	line := e.Format(l.format) + "\n"
 	if style, ok := l.style[e.Level]; ok {
-		line = style.Apply(line)
+		line = style.Format(line)
 	}
 	io.WriteString(l.w, line)
 }

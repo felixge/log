@@ -98,7 +98,8 @@ var codes = map[TermStyle]uint8{
 	BgWhite:        107,
 }
 
-func (s TermStyle) Apply(str string) string {
+// Format wraps the given str with the right terminal escape sequences.
+func (s TermStyle) Format(str string) string {
 	for style, code := range codes {
 		if s&style > 0 {
 			str = fmt.Sprintf("\033[%dm%s\033[0m", code, str)

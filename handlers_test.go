@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestColorWriter(t *testing.T) {
+func ExampleTermLogger(t *testing.T) {
 	l := NewTermLogger()
 	l.Debug("this is debugging")
 	l.Info("this is an info")

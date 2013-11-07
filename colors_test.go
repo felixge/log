@@ -6,5 +6,5 @@ import (
 )
 
 func ExampleTermStyle(b *testing.B) {
-	fmt.Println((White | BgRed | Bold).Apply("my text"))
+	fmt.Println((White | BgRed | Bold).Format("my text"))
 }
