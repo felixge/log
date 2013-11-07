@@ -4,10 +4,10 @@ import (
 	"fmt"
 )
 
-// A simple API for ANSI/VT100 color/style escape sequences.
+// TermStyle provides a simple abstraction for ANSI/VT100 color/style escape
+// sequences.
 //
 // Example: fmt.Println((White|BgRed|Bold).Apply("my text"))
-
 type TermStyle int
 
 const (
