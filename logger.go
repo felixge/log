@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// ParseLevel returns the Level value for the given string, or an error if
+// such a level does not exist. e.G. "debug" will return Debug.
 func ParseLevel(s string) (Level, error) {
 	s = strings.ToLower(s)
 	for lvl, lvlStr := range levels {
@@ -20,20 +22,21 @@ func ParseLevel(s string) (Level, error) {
 	return 0, fmt.Errorf("Unknown level: %s", s)
 }
 
-const DefaultFormat = "2006-01-02T15:04:05.000Z [level] message (file:line)"
-
+// Level defines a log level.
 type Level int
 
+// String returns the human readable name of the log level. e.G. Debug will
+// return "debug"
 func (l Level) String() string {
 	return levels[l]
 }
 
 const (
-	Debug Level = iota
-	Info
-	Warn
-	Error
-	Fatal
+	Debug Level = iota // Internal events
+	Info               // Regular events
+	Warn               // Undesirbale events
+	Error              // Notify somebody
+	Fatal              // Doomsday
 )
 
 var levels = map[Level]string{
@@ -44,6 +47,8 @@ var levels = map[Level]string{
 	Fatal: "fatal",
 }
 
+// Interface defines the log interface provided by this package. Use this when
+// passing *Logger instances around.
 type Interface interface {
 	Debug(args ...interface{})
 	Info(args ...interface{})
@@ -52,6 +57,7 @@ type Interface interface {
 	Fatal(args ...interface{})
 }
 
+// Handler is used to implement log handlers.
 type Handler interface {
 	HandleLog(Entry)
 }
