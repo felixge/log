@@ -7,7 +7,8 @@ import (
 // TermStyle provides a simple abstraction for ANSI/VT100 color/style escape
 // sequences.
 //
-// Example: fmt.Println((White|BgRed|Bold).Apply("my text"))
+// Example:
+//     fmt.Println((White|BgRed|Bold).Apply("my text"))
 type TermStyle int
 
 const (
