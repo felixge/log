@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -31,12 +32,14 @@ func (l Level) String() string {
 	return levels[l]
 }
 
+// The available log levels along with their recommended usage. Always log at
+// the info Level in production.
 const (
-	Debug Level = iota // Internal events
-	Info               // Regular events
-	Warn               // Undesirbale events
-	Error              // Notify somebody
-	Fatal              // Doomsday
+	Debug Level = iota // Development details (e.g. raw input data)
+	Info               // Regular event (e.g. user login)
+	Warn               // Undesireable event (e.g. invalid user input)
+	Error              // E-mail somebody (e.g. could not save record)
+	Fatal              // Call somebody (e.g. database down)
 )
 
 var levels = map[Level]string{
@@ -55,6 +58,7 @@ type Interface interface {
 	Warn(args ...interface{})
 	Error(args ...interface{}) error
 	Fatal(args ...interface{})
+	Panic()
 }
 
 // Handler is used to implement log handlers.
@@ -65,12 +69,50 @@ type Handler interface {
 	Flush()
 }
 
+func NewEntry(lvl Level, args ...interface{}) Entry {
+	fn, file, line := getCaller()
+	return Entry{
+		Time:     time.Now(),
+		Level:    lvl,
+		Message:  formatMessage(args),
+		File:     file,
+		Line:     line,
+		Function: fn,
+	}
+}
+
+func getCaller() (fn, file string, line int) {
+	var (
+		skip     = 0
+		thisFile string
+		ok       bool
+		pc       uintptr
+	)
+
+	for ; ; skip++ {
+		pc, file, line, ok = runtime.Caller(skip)
+		if !ok {
+			break
+		} else if skip == 0 {
+			thisFile = file
+			continue
+		} else if file != thisFile {
+			fn = runtime.FuncForPC(pc).Name()
+			if fn != "runtime.panic" {
+				break
+			}
+		}
+	}
+	return fn, file, line
+}
+
 type Entry struct {
-	Time    time.Time
-	Level   Level
-	Message string
-	File    string
-	Line    int
+	Time     time.Time
+	Level    Level
+	Message  string
+	File     string
+	Line     int
+	Function string
 }
 
 func (e Entry) Format(layout string) string {
@@ -83,7 +125,7 @@ func (e Entry) Format(layout string) string {
 }
 
 func NewLogger(handlers ...Handler) *Logger {
-	l := &Logger{}
+	l := &Logger{flushTimeout: DefaultFlushTimeout, exit: DefaultExit}
 	for _, h := range handlers {
 		l.Handle(Debug, h)
 	}
@@ -91,7 +133,9 @@ func NewLogger(handlers ...Handler) *Logger {
 }
 
 type Logger struct {
-	handlers []*logHandler
+	handlers     []*logHandler
+	flushTimeout time.Duration
+	exit         bool
 }
 
 type logHandler struct {
@@ -99,21 +143,82 @@ type logHandler struct {
 	handler Handler
 }
 
+// Debug logs at the Debug level.
 func (l *Logger) Debug(args ...interface{}) {
 	l.log(Debug, args)
 }
+
+// Debug logs at the Info level.
 func (l *Logger) Info(args ...interface{}) {
 	l.log(Info, args)
 }
+
+// Warn logs at the Warn level.
 func (l *Logger) Warn(args ...interface{}) {
 	l.log(Warn, args)
 }
+
+// Error logs at the Error level and returns the formatted error message as
+// an error for convenience.
 func (l *Logger) Error(args ...interface{}) error {
 	return entryToError(l.log(Error, args))
 }
+
+var DefaultExit = true
+
+// Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
 func (l *Logger) Fatal(args ...interface{}) {
 	l.log(Fatal, args)
-	os.Exit(1)
+	l.Flush()
+	if l.exit {
+		os.Exit(1)
+	}
+}
+
+func (l *Logger) Panic() {
+	if p := recover(); p != nil {
+		switch p.(type) {
+		case string:
+			l.Fatal("panic: %s", p)
+		default:
+			l.Fatal("panic: %#v", p)
+		}
+	}
+}
+
+var (
+	DefaultFlushTimeout = 30 * time.Second
+	ErrFlushTimeout     = errors.New("Flush timed out.")
+)
+
+func (l *Logger) Flush() error {
+	var wg sync.WaitGroup
+	for _, h := range l.handlers {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			h.handler.Flush()
+		}()
+	}
+
+	err := make(chan error, 1)
+	go func() {
+		wg.Wait()
+		err <- nil
+	}()
+	go func() {
+		time.Sleep(l.flushTimeout)
+		err <- ErrFlushTimeout
+	}()
+	return <-err
+}
+
+func (l *Logger) SetFlushTimeout(d time.Duration) {
+	l.flushTimeout = d
+}
+
+func (l *Logger) SetExit(exit bool) {
+	l.exit = false
 }
 
 func (l *Logger) Handle(lvl Level, handler Handler) {
@@ -121,23 +226,12 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 }
 
 func (l *Logger) log(lvl Level, args []interface{}) Entry {
-	msg := formatMessage(args)
-	_, file, lines, _ := runtime.Caller(2)
-
-	e := Entry{
-		Time:    time.Now(),
-		Level:   lvl,
-		Message: msg,
-		File:    file,
-		Line:    lines,
-	}
-
+	e := NewEntry(lvl, args...)
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
 			h.handler.HandleLog(e)
 		}
 	}
-
 	return e
 }
 

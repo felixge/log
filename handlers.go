@@ -5,7 +5,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 )
+
+// DefaultFormat defines the default log format used by NewTermLogger.
+const DefaultFormat = "2006-01-02T15:04:05.000Z [level] message (file:line)"
 
 // DefaultTermStyle defines the default colors/style used by NewTermLogger
 var DefaultTermStyle = map[Level]TermStyle{
@@ -16,13 +20,18 @@ var DefaultTermStyle = map[Level]TermStyle{
 	Fatal: White | BgRed,
 }
 
-// DefaultFormat defines the default log format used by NewTermLogger.
-const DefaultFormat = "2006-01-02T15:04:05.000Z [level] message (file:line)"
-
 // NewLineWriter returns a Handler that writes newline separated log entries
 // to the given io.Writer w using the provided format and style.
 func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineWriter {
-	return &LineWriter{w: w, format: format, style: style}
+	l := &LineWriter{
+		w:        w,
+		format:   format,
+		style:    style,
+		ch:       make(chan Entry, 1024),
+		flushReq: make(chan chan struct{}),
+	}
+	go l.loop()
+	return l
 }
 
 // NewTermWriter returns a *Logger that writes to os.Stdout using the
@@ -33,24 +42,55 @@ func NewTermLogger() *Logger {
 
 // LineWriter is a Handler that provides newline separated logging.
 type LineWriter struct {
-	w      io.Writer
-	format string
-	style  map[Level]TermStyle
+	w        io.Writer
+	format   string
+	style    map[Level]TermStyle
+	ch       chan Entry
+	flushReq chan chan struct{}
 }
 
 // HandleLog writes the given log entry to a new line.
 // @TODO Process entries in another goroutine.
 func (l *LineWriter) HandleLog(e Entry) {
-	line := strings.Replace(e.Format(l.format), "\n", "", -1) + "\n"
-	if style, ok := l.style[e.Level]; ok {
-		line = style.Format(line)
+	select {
+	case l.ch <- e:
+	default:
 	}
-	io.WriteString(l.w, line)
 }
 
 // Flush waits for any buffered log Entries to be written out.
 func (l *LineWriter) Flush() {
-	// do nothing
+	flushReq := make(chan struct{})
+	l.flushReq <- flushReq
+	<-flushReq
+}
+
+func (l *LineWriter) loop() {
+	var flushReq chan struct{}
+	for {
+		var e Entry
+		if flushReq == nil {
+			select {
+			case e = <-l.ch:
+			case flushReq = <-l.flushReq:
+				continue
+			}
+		} else {
+			select {
+			case e = <-l.ch:
+			default:
+				flushReq <- struct{}{}
+				flushReq = nil
+				continue
+			}
+		}
+
+		line := strings.Replace(e.Format(l.format), "\n", "", -1) + "\n"
+		if style, ok := l.style[e.Level]; ok {
+			line = style.Format(line)
+		}
+		io.WriteString(l.w, line)
+	}
 }
 
 // NewTestWriter returns a new *TestWriter.
@@ -87,4 +127,18 @@ func (w *TestWriter) MatchLevel(expr string, lvl Level) bool {
 		}
 	}
 	return false
+}
+
+func NewDelayedWriter(w io.Writer, d time.Duration) *DelayedWriter {
+	return &DelayedWriter{w: w, d: d}
+}
+
+type DelayedWriter struct {
+	w io.Writer
+	d time.Duration
+}
+
+func (d *DelayedWriter) Write(b []byte) (int, error) {
+	time.Sleep(d.d)
+	return d.w.Write(b)
 }
