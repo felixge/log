@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func ExampleLogger(t *testing.T) {
+func ExampleNewTermLogger(t *testing.T) {
 	l := NewTermLogger()
 	l.Debug("this is debugging")
 	l.Info("this is an info")
