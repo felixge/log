@@ -6,7 +6,7 @@ import (
 
 // A simple implementation of basic terminal styles.
 //
-// Example: fmt.Println((Black|Red).Apply("my text"))
+// Example: fmt.Println((White|BgRed|Bold).Apply("my text"))
 
 type Style int
 
