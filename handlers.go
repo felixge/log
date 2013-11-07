@@ -28,7 +28,7 @@ func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineW
 // NewTermWriter returns a *Logger that writes to os.Stdout using the
 // DefaultFormat and DefaultTermStyle.
 func NewTermLogger() *Logger {
-	return NewLogger(&LineWriter{w: os.Stdout, format: DefaultFormat, style: DefaultTermStyle})
+	return NewLogger(NewLineWriter(os.Stdout, DefaultFormat, DefaultTermStyle))
 }
 
 // LineWriter is a Handler that provides newline separated logging.
@@ -39,12 +39,18 @@ type LineWriter struct {
 }
 
 // HandleLog writes the given log entry to a new line.
+// @TODO Process entries in another goroutine.
 func (l *LineWriter) HandleLog(e Entry) {
 	line := strings.Replace(e.Format(l.format), "\n", "", -1) + "\n"
 	if style, ok := l.style[e.Level]; ok {
 		line = style.Format(line)
 	}
 	io.WriteString(l.w, line)
+}
+
+// Flush waits for any buffered log Entries to be written out.
+func (l *LineWriter) Flush() {
+	// do nothing
 }
 
 // NewTestWriter returns a new *TestWriter.
@@ -61,6 +67,9 @@ type TestWriter struct {
 func (w *TestWriter) HandleLog(e Entry) {
 	w.Entries = append(w.Entries, e)
 }
+
+// Flush satifies the Handler interface, but is a no-op for *TestWriter.
+func (w *TestWriter) Flush() {}
 
 // Match returns true if the regular expr matches the Message of a log
 // Entry in the Entries slices.

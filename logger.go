@@ -59,7 +59,10 @@ type Interface interface {
 
 // Handler is used to implement log handlers.
 type Handler interface {
+	// HandleLog processes the given Entry. Can be async if needed.
 	HandleLog(Entry)
+	// Flush waits for any buffered data to be processed.
+	Flush()
 }
 
 type Entry struct {
