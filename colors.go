@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// A simple implementation of basic terminal styles.
+// A simple API for ANSI/VT100 color/style escape sequences.
 //
 // Example: fmt.Println((White|BgRed|Bold).Apply("my text"))
 
