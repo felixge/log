@@ -4,11 +4,15 @@ import (
 	"fmt"
 )
 
+// A simple implementation of basic terminal styles.
+//
+// Example: fmt.Println((Black|Red).Apply("my text"))
+
 type Style int
 
 const (
 	// Foreground colors
-	Black = 1 << iota
+	Black Style = 1 << iota
 	Red
 	Green
 	Yellow
@@ -52,6 +56,7 @@ const (
 	Hidden
 )
 
+// from http://misc.flogisoft.com/bash/tip_colors_and_formatting
 var codes = map[Style]uint8{
 	Red:          31,
 	Green:        32,
