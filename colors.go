@@ -58,6 +58,13 @@ const (
 
 // from http://misc.flogisoft.com/bash/tip_colors_and_formatting
 var codes = map[TermStyle]uint8{
+	Bold:       1,
+	Dim:        2,
+	Underlined: 4,
+	Blink:      5,
+	Reverse:    7,
+	Hidden:     8,
+
 	Red:          31,
 	Green:        32,
 	Yellow:       33,
@@ -89,13 +96,6 @@ var codes = map[TermStyle]uint8{
 	BgLightMagenta: 105,
 	BgLightCyan:    106,
 	BgWhite:        107,
-
-	Bold:       1,
-	Dim:        2,
-	Underlined: 4,
-	Blink:      5,
-	Reverse:    7,
-	Hidden:     8,
 }
 
 func (s TermStyle) Apply(str string) string {
