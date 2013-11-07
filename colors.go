@@ -8,11 +8,11 @@ import (
 //
 // Example: fmt.Println((White|BgRed|Bold).Apply("my text"))
 
-type Style int
+type TermStyle int
 
 const (
 	// Foreground colors
-	Black Style = 1 << iota
+	Black TermStyle = 1 << iota
 	Red
 	Green
 	Yellow
@@ -57,7 +57,7 @@ const (
 )
 
 // from http://misc.flogisoft.com/bash/tip_colors_and_formatting
-var codes = map[Style]uint8{
+var codes = map[TermStyle]uint8{
 	Red:          31,
 	Green:        32,
 	Yellow:       33,
@@ -98,7 +98,7 @@ var codes = map[Style]uint8{
 	Hidden:     8,
 }
 
-func (s Style) Apply(str string) string {
+func (s TermStyle) Apply(str string) string {
 	for style, code := range codes {
 		if s&style > 0 {
 			str = fmt.Sprintf("\033[%dm%s\033[0m", code, str)
