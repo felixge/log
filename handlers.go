@@ -9,7 +9,7 @@ import (
 )
 
 // DefaultFormat defines the default log format used by NewTermLogger.
-const DefaultFormat = "2006-01-02T15:04:05.000Z [level] message (file:line)"
+const DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
 
 // DefaultTermStyle defines the default colors/style used by NewTermLogger
 var DefaultTermStyle = map[Level]TermStyle{
