@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -47,11 +48,15 @@ type LineWriter struct {
 	style    map[Level]TermStyle
 	entries  chan Entry // @TODO rename to entries
 	flushReq chan chan struct{}
+	flushLock sync.Mutex
 }
 
 // HandleLog writes the given log entry to a new line.
 // @TODO Process entries in another goroutine.
 func (l *LineWriter) HandleLog(e Entry) {
+	l.flushLock.Lock()
+	defer l.flushLock.Unlock()
+
 	select {
 	case l.entries <- e:
 	default:
@@ -62,6 +67,9 @@ func (l *LineWriter) HandleLog(e Entry) {
 // Flush waits for any buffered log Entries to be written out.
 // @TODO Make this block any HandleLog
 func (l *LineWriter) Flush() {
+	l.flushLock.Lock()
+	defer l.flushLock.Unlock()
+
 	flushReq := make(chan struct{})
 	l.flushReq <- flushReq
 	<-flushReq
@@ -131,16 +139,16 @@ func (w *TestWriter) MatchLevel(expr string, lvl Level) bool {
 	return false
 }
 
-func NewDelayedWriter(w io.Writer, d time.Duration) *DelayedWriter {
-	return &DelayedWriter{w: w, d: d}
+func NewSlowWriter(w io.Writer, d time.Duration) *SlowWriter {
+	return &SlowWriter{w: w, d: d}
 }
 
-type DelayedWriter struct {
+type SlowWriter struct {
 	w io.Writer
 	d time.Duration
 }
 
-func (d *DelayedWriter) Write(b []byte) (int, error) {
+func (d *SlowWriter) Write(b []byte) (int, error) {
 	time.Sleep(d.d)
 	return d.w.Write(b)
 }

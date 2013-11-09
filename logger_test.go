@@ -41,12 +41,14 @@ func TestLogger(t *testing.T) {
 }
 
 func TestLogger_Flush(t *testing.T) {
+	// Configure l as a *Logger that writes to a *LineWriter that outputs to a
+	// slow io.Writer which sleep for dt on every Write call.
 	var (
 		wg    sync.WaitGroup
 		b     = &bytes.Buffer{}
 		dt    = 10 * time.Millisecond
 		count = 10
-		w     = NewLineWriter(NewDelayedWriter(b, dt), DefaultFormat, DefaultTermStyle)
+		w     = NewLineWriter(NewSlowWriter(b, dt), DefaultFormat, DefaultTermStyle)
 		l     = NewLogger(w)
 	)
 
@@ -54,24 +56,32 @@ func TestLogger_Flush(t *testing.T) {
 	for i := 1; i <= count; i++ {
 		l.Debug("Message %s", i)
 	}
+	// The above log statements should have been async. To verify this, we check
+	// that the total duration for writing them out did not exceed half the time
+	// a single sync operation would have taken.
 	if duration := time.Since(start); duration > dt/2 {
-		t.Fatal("Expected async logging, but detected sync behavior. %s", duration)
+		t.Fatalf("Expected async logging, but detected sync behavior. %s", duration)
 	}
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		time.Sleep(dt / 2)
-		l.Debug("Log during flush")
+		time.Sleep(dt / 2) // Make sure l.Flush() is in progress before we continue.
+		l.Debug("Log during flush") // Try to write a log entry while flushing happens
+		// Verify that the above call was blocked until Flush() finished. Flush
+		// takes at least dt*count, so verify that we waited at least that long.
 		if duration := time.Since(start); duration < dt*time.Duration(count) {
 			t.Fatalf("Logging did not seem to block during Flush. %s", duration)
 		}
 	}()
 	l.Flush()
 
+	// Flush will take at least dt*count (because of the slow io.Writer), so
+	// report an error if it finishes faster for some reason.
 	if duration := time.Since(start); duration < dt*time.Duration(count) {
 		t.Fatalf("Flush seems to have dropped messages. %s", duration)
 	}
+	// Make sure the goroutine we spawned finishes before we terminate the test
 	wg.Wait()
 }
 
