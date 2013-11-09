@@ -42,6 +42,7 @@ func TestLogger(t *testing.T) {
 
 func TestLogger_Flush(t *testing.T) {
 	var (
+		wg    sync.WaitGroup
 		b     = &bytes.Buffer{}
 		dt    = 10 * time.Millisecond
 		count = 10
@@ -56,10 +57,22 @@ func TestLogger_Flush(t *testing.T) {
 	if duration := time.Since(start); duration > dt/2 {
 		t.Fatal("Expected async logging, but detected sync behavior. %s", duration)
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		time.Sleep(dt / 2)
+		l.Debug("Log during flush")
+		if duration := time.Since(start); duration < dt*time.Duration(count) {
+			t.Fatalf("Logging did not seem to block during Flush. %s", duration)
+		}
+	}()
 	l.Flush()
+
 	if duration := time.Since(start); duration < dt*time.Duration(count) {
 		t.Fatalf("Flush seems to have dropped messages. %s", duration)
 	}
+	wg.Wait()
 }
 
 func TestEntryFormat_defaultFormat(t *testing.T) {

@@ -63,9 +63,11 @@ type Interface interface {
 
 // Handler is used to implement log handlers.
 type Handler interface {
-	// HandleLog processes the given Entry. Can be async if needed.
+	// HandleLog processes the given Entry (e.g. writes it to a file, sends it to
+	// a log service)
 	HandleLog(Entry)
-	// Flush waits for any buffered data to be processed.
+	// Flush waits for any buffered data to be flushed and blocks new calls
+	// to HandleLog until it returns.
 	Flush()
 }
 
@@ -140,6 +142,7 @@ func NewLogger(handlers ...Handler) *Logger {
 type Logger struct {
 	handlers     []*logHandler
 	flushTimeout time.Duration
+	flushLock    sync.Mutex
 	exit         bool
 }
 
@@ -197,6 +200,9 @@ var (
 )
 
 func (l *Logger) Flush() error {
+	l.flushLock.Lock()
+	defer l.flushLock.Unlock()
+
 	var wg sync.WaitGroup
 	for _, h := range l.handlers {
 		wg.Add(1)
@@ -232,6 +238,10 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 
 func (l *Logger) log(lvl Level, args []interface{}) Entry {
 	e := NewEntry(lvl, args...)
+
+	l.flushLock.Lock()
+	defer l.flushLock.Unlock()
+
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
 			h.handler.HandleLog(e)
