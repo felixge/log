@@ -27,7 +27,7 @@ func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineW
 		w:        w,
 		format:   format,
 		style:    style,
-		ch:       make(chan Entry, 1024),
+		entries:  make(chan Entry, 1024),
 		flushReq: make(chan chan struct{}),
 	}
 	go l.loop()
@@ -45,7 +45,7 @@ type LineWriter struct {
 	w        io.Writer
 	format   string
 	style    map[Level]TermStyle
-	ch       chan Entry
+	entries  chan Entry // @TODO rename to entries
 	flushReq chan chan struct{}
 }
 
@@ -53,12 +53,14 @@ type LineWriter struct {
 // @TODO Process entries in another goroutine.
 func (l *LineWriter) HandleLog(e Entry) {
 	select {
-	case l.ch <- e:
+	case l.entries <- e:
 	default:
+		// TODO: can we notify somebody?
 	}
 }
 
 // Flush waits for any buffered log Entries to be written out.
+// @TODO Make this block any HandleLog
 func (l *LineWriter) Flush() {
 	flushReq := make(chan struct{})
 	l.flushReq <- flushReq
@@ -71,13 +73,13 @@ func (l *LineWriter) loop() {
 		var e Entry
 		if flushReq == nil {
 			select {
-			case e = <-l.ch:
+			case e = <-l.entries:
 			case flushReq = <-l.flushReq:
 				continue
 			}
 		} else {
 			select {
-			case e = <-l.ch:
+			case e = <-l.entries:
 			default:
 				flushReq <- struct{}{}
 				flushReq = nil

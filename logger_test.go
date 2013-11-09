@@ -76,9 +76,9 @@ func TestEntryFormat(t *testing.T) {
 
 func TestLogger_Panic(t *testing.T) {
 	var (
-		wg sync.WaitGroup
-		w = NewTestWriter()
-		l = NewLogger(w)
+		wg   sync.WaitGroup
+		w    = NewTestWriter()
+		l    = NewLogger(w)
 		file string
 		line int
 	)
