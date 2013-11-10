@@ -28,7 +28,7 @@ benchmark="$@"
 
 testargs="-bench ${benchmark}"
 if [[ -n "${pdf}" ]]; then
-  testargs="${testargs} --cpuprofile ${CPU_PROFILE} -x"
+  testargs="${testargs} -x -cpuprofile=${CPU_PROFILE}"
 fi
 
 go test ${testargs} .
