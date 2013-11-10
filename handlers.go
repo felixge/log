@@ -43,11 +43,11 @@ func NewTermLogger() *Logger {
 
 // LineWriter is a Handler that provides newline separated logging.
 type LineWriter struct {
-	w        io.Writer
-	format   string
-	style    map[Level]TermStyle
-	entries  chan Entry // @TODO rename to entries
-	flushReq chan chan struct{}
+	w         io.Writer
+	format    string
+	style     map[Level]TermStyle
+	entries   chan Entry // @TODO rename to entries
+	flushReq  chan chan struct{}
 	flushLock sync.Mutex
 }
 
