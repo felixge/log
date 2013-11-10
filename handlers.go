@@ -21,6 +21,12 @@ var DefaultTermStyle = map[Level]TermStyle{
 	Fatal: White | BgRed,
 }
 
+// NewTermWriter returns a *Logger that writes to os.Stdout using the
+// DefaultFormat and DefaultTermStyle.
+func NewTermLogger() *Logger {
+	return NewLogger(NewLineWriter(os.Stdout, DefaultFormat, DefaultTermStyle))
+}
+
 // NewLineWriter returns a Handler that writes newline separated log entries
 // to the given io.Writer w using the provided format and style.
 func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineWriter {
@@ -33,12 +39,6 @@ func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineW
 	}
 	go l.loop()
 	return l
-}
-
-// NewTermWriter returns a *Logger that writes to os.Stdout using the
-// DefaultFormat and DefaultTermStyle.
-func NewTermLogger() *Logger {
-	return NewLogger(NewLineWriter(os.Stdout, DefaultFormat, DefaultTermStyle))
 }
 
 // LineWriter is a Handler that provides newline separated logging.
