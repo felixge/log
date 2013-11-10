@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eux
+set -eu
 
 readonly TEST_BIN='log.test'
 readonly CPU_PROFILE='pprof.out'
