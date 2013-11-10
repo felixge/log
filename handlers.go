@@ -57,11 +57,7 @@ func (l *LineWriter) HandleLog(e Entry) {
 	l.flushLock.Lock()
 	defer l.flushLock.Unlock()
 
-	select {
-	case l.entries <- e:
-	default:
-		// TODO: can we notify somebody?
-	}
+	l.entries <- e
 }
 
 // Flush waits for any buffered log Entries to be written out.

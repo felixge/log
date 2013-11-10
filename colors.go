@@ -65,6 +65,7 @@ var codes = map[TermStyle]uint8{
 	Reverse:    7,
 	Hidden:     8,
 
+	Black:        30,
 	Red:          31,
 	Green:        32,
 	Yellow:       33,
@@ -81,6 +82,7 @@ var codes = map[TermStyle]uint8{
 	LightCyan:    96,
 	White:        97,
 
+	BgBlack:        40,
 	BgRed:          41,
 	BgGreen:        42,
 	BgYellow:       43,

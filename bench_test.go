@@ -1,7 +1,6 @@
 package log
 
 import (
-	"io/ioutil"
 	"testing"
 	"time"
 )
@@ -10,8 +9,9 @@ import (
 // abstractions provided by this library. The result can be seen as an estimate
 // of maximal theoretical log throughput.
 func BenchmarkDiscardLineLogger(b *testing.B) {
+	wc := &WriteCounter{}
 	l := NewLogger()
-	l.Handle(Debug, NewLineWriter(ioutil.Discard, DefaultFormat, nil))
+	l.Handle(Debug, NewLineWriter(wc, DefaultFormat, nil))
 
 	for i := 0; i < b.N; i++ {
 		l.Debug("Hello %s", "World")
@@ -19,6 +19,18 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 	if err := l.Flush(); err != nil {
 		panic(err)
 	}
+	if wc.count != b.N {
+		b.Fatalf("Bad write count: %d != %d", wc.count, b.N)
+	}
+}
+
+type WriteCounter struct {
+	count int
+}
+
+func (w *WriteCounter) Write(buf []byte) (int, error) {
+	w.count++
+	return len(buf), nil
 }
 
 // BenchmarkEntryFormat tests the performance of the entry formatting function.
@@ -32,6 +44,6 @@ func BenchmarkEntryFormat(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		e.Format("15:04:05.000 [level] message (file:line)")
+		e.Format(DefaultFormat)
 	}
 }
