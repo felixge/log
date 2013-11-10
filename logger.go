@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -115,20 +114,6 @@ type Entry struct {
 	File     string
 	Function string
 	Line     int
-}
-
-func (e Entry) Format(layout string) string {
-	if strings.Contains(layout, "UTC") {
-		layout = e.Time.UTC().Format(layout)
-	} else {
-		layout = e.Time.Format(layout)
-	}
-	layout = strings.Replace(layout, "level", e.Level.String(), -1)
-	layout = strings.Replace(layout, "message", e.Message, -1)
-	layout = strings.Replace(layout, "file", e.File, -1)
-	layout = strings.Replace(layout, "function", e.Function, -1)
-	layout = strings.Replace(layout, "line", strconv.FormatInt(int64(e.Line), 10), -1)
-	return layout
 }
 
 func NewLogger(handlers ...Handler) *Logger {

@@ -2,7 +2,6 @@ package log
 
 import (
 	"bytes"
-	"fmt"
 	"runtime"
 	"sync"
 	"testing"
@@ -83,55 +82,6 @@ func TestLogger_Flush(t *testing.T) {
 	}
 	// Make sure the goroutine we spawned finishes before we terminate the test
 	wg.Wait()
-}
-
-func TestEntryFormat_defaultFormat(t *testing.T) {
-	e := Entry{
-		Time:     time.Now(),
-		Level:    Info,
-		Message:  "foo",
-		File:     "bar.go",
-		Line:     23,
-		Function: "foo.bar",
-	}
-
-	str := e.Format(DefaultFormat)
-	expected := fmt.Sprintf(
-		"[%s UTC] [%s] %s (%s:%d)",
-		e.Time.UTC().Format("2006-01-02 15:04:05.000"),
-		Info,
-		e.Message,
-		e.Function,
-		e.Line,
-	)
-	if str != expected {
-		t.Errorf("Bad result: %q != %q", str, expected)
-	}
-}
-
-func TestEntryFormat_customFormat(t *testing.T) {
-	e := Entry{
-		Time:     time.Now(),
-		Level:    Info,
-		Message:  "foo",
-		File:     "bar.go",
-		Line:     23,
-		Function: "foo.bar",
-	}
-
-	str := e.Format("2006/01/02 15:04:05.000 level message file/line/function")
-	expected := fmt.Sprintf(
-		"%s %s %s %s/%d/%s",
-		e.Time.Format("2006/01/02 15:04:05.000"),
-		Info,
-		e.Message,
-		e.File,
-		e.Line,
-		e.Function,
-	)
-	if str != expected {
-		t.Errorf("Bad result: %q != %q", str, expected)
-	}
 }
 
 func TestLogger_Panic(t *testing.T) {

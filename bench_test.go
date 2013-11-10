@@ -88,18 +88,3 @@ func (h Hz) String() string {
 	h = h / Hz(factor)
 	return fmt.Sprintf("%.2f %sHZ", float64(h), prefix)
 }
-
-// BenchmarkEntryFormat tests the performance of the entry formatting function.
-func BenchmarkEntryFormat(b *testing.B) {
-	e := Entry{
-		Time:    time.Now(),
-		Level:   Info,
-		Message: "foo",
-		File:    "bar.go",
-		Line:    23,
-	}
-
-	for i := 0; i < b.N; i++ {
-		e.Format(DefaultFormat)
-	}
-}

@@ -26,7 +26,7 @@ var DefaultTermStyle = map[Level]TermStyle{
 func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineWriter {
 	l := &LineWriter{
 		w:        w,
-		format:   format,
+		format:   NewFormat(format),
 		style:    style,
 		entries:  make(chan Entry, 1024),
 		flushReq: make(chan chan struct{}),
@@ -44,7 +44,7 @@ func NewTermLogger() *Logger {
 // LineWriter is a Handler that provides newline separated logging.
 type LineWriter struct {
 	w         io.Writer
-	format    string
+	format    *Format
 	style     map[Level]TermStyle
 	entries   chan Entry // @TODO rename to entries
 	flushReq  chan chan struct{}
@@ -91,7 +91,7 @@ func (l *LineWriter) loop() {
 			}
 		}
 
-		line := strings.Replace(e.Format(l.format), "\n", "", -1) + "\n"
+		line := strings.Replace(l.format.Format(e), "\n", "", -1) + "\n"
 		if style, ok := l.style[e.Level]; ok {
 			line = style.Format(line)
 		}
