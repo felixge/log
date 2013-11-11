@@ -40,14 +40,14 @@ func TestLogger(t *testing.T) {
 }
 
 func TestLogger_Flush(t *testing.T) {
-	// Configure l as a *Logger that writes to a *LineWriter that outputs to a
+	// Configure l as a *Logger that writes to a *LineHandler that outputs to a
 	// slow io.Writer which sleep for dt on every Write call.
 	var (
 		wg    sync.WaitGroup
 		b     = &bytes.Buffer{}
 		dt    = 10 * time.Millisecond
 		count = 10
-		w     = NewLineWriter(NewSlowWriter(b, dt), DefaultFormat, DefaultTermStyle)
+		w     = NewLineHandler(NewSlowWriter(b, dt), DefaultFormat, DefaultTermStyle)
 		l     = NewLogger(w)
 	)
 

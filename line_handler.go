@@ -6,10 +6,10 @@ import (
 	"sync"
 )
 
-// NewLineWriter returns a Handler that writes newline separated log entries
+// NewLineHandler returns a Handler that writes newline separated log entries
 // to the given io.Writer w using the provided format and style.
-func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineWriter {
-	l := &LineWriter{
+func NewLineHandler(w io.Writer, format string, style map[Level]TermStyle) *LineHandler {
+	l := &LineHandler{
 		w:        w,
 		format:   NewFormat(format),
 		style:    style,
@@ -20,8 +20,8 @@ func NewLineWriter(w io.Writer, format string, style map[Level]TermStyle) *LineW
 	return l
 }
 
-// LineWriter is a Handler that provides newline separated logging.
-type LineWriter struct {
+// LineHandler is a Handler that provides newline separated logging.
+type LineHandler struct {
 	w         io.Writer
 	format    *Format
 	style     map[Level]TermStyle
@@ -32,7 +32,7 @@ type LineWriter struct {
 
 // HandleLog writes the given log entry to a new line.
 // @TODO Process entries in another goroutine.
-func (l *LineWriter) HandleLog(e Entry) {
+func (l *LineHandler) HandleLog(e Entry) {
 	l.flushLock.Lock()
 	defer l.flushLock.Unlock()
 
@@ -41,7 +41,7 @@ func (l *LineWriter) HandleLog(e Entry) {
 
 // Flush waits for any buffered log Entries to be written out.
 // @TODO Make this block any HandleLog
-func (l *LineWriter) Flush() {
+func (l *LineHandler) Flush() {
 	l.flushLock.Lock()
 	defer l.flushLock.Unlock()
 
@@ -50,7 +50,7 @@ func (l *LineWriter) Flush() {
 	<-flushReq
 }
 
-func (l *LineWriter) loop() {
+func (l *LineHandler) loop() {
 	var flushReq chan struct{}
 	for {
 		var e Entry
