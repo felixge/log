@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrFlushTimeout     = errors.New("Flush timed out.")
+	ErrFlushTimeout = errors.New("Flush timed out.")
 )
 
 // ParseLevel returns the Level value for the given string, or an error if

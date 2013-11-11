@@ -65,7 +65,7 @@ func TestLogger_Flush(t *testing.T) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		time.Sleep(dt / 2) // Make sure l.Flush() is in progress before we continue.
+		time.Sleep(dt / 2)          // Make sure l.Flush() is in progress before we continue.
 		l.Debug("Log during flush") // Try to write a log entry while flushing happens
 		// Verify that the above call was blocked until Flush() finished. Flush
 		// takes at least dt*count, so verify that we waited at least that long.

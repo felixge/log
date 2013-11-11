@@ -17,7 +17,7 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
-	DefaultExit = true
+	DefaultExit         = true
 	DefaultFlushTimeout = 30 * time.Second
 )
 
