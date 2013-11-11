@@ -34,19 +34,19 @@ func (l Level) String() string {
 // The available log levels along with their recommended usage. Always log at
 // the info Level in production.
 const (
-	Debug Level = iota // Development details (e.g. raw input data)
-	Info               // Regular event (e.g. user login)
-	Warn               // Undesireable event (e.g. invalid user input)
-	Error              // E-mail somebody (e.g. could not save record)
-	Fatal              // Call somebody (e.g. database down)
+	DEBUG Level = iota // Development details (e.g. raw input data)
+	INFO               // Regular event (e.g. user login)
+	WARN               // Undesireable event (e.g. invalid user input)
+	ERROR              // E-mail somebody (e.g. could not save record)
+	FATAL              // Call somebody (e.g. database down)
 )
 
 var levels = map[Level]string{
-	Debug: "debug",
-	Info:  "info",
-	Warn:  "warn",
-	Error: "error",
-	Fatal: "fatal",
+	DEBUG: "debug",
+	INFO:  "info",
+	WARN:  "warn",
+	ERROR: "error",
+	FATAL: "fatal",
 }
 
 // Interface defines the log interface provided by this package. Use this when
@@ -119,7 +119,7 @@ type Entry struct {
 func NewLogger(handlers ...Handler) *Logger {
 	l := &Logger{flushTimeout: DefaultFlushTimeout, exit: DefaultExit}
 	for _, h := range handlers {
-		l.Handle(Debug, h)
+		l.Handle(DEBUG, h)
 	}
 	return l
 }
@@ -138,30 +138,30 @@ type logHandler struct {
 
 // Debug logs at the Debug level.
 func (l *Logger) Debug(args ...interface{}) {
-	l.log(Debug, args)
+	l.log(DEBUG, args)
 }
 
 // Debug logs at the Info level.
 func (l *Logger) Info(args ...interface{}) {
-	l.log(Info, args)
+	l.log(INFO, args)
 }
 
 // Warn logs at the Warn level.
 func (l *Logger) Warn(args ...interface{}) {
-	l.log(Warn, args)
+	l.log(WARN, args)
 }
 
 // Error logs at the Error level and returns the formatted error message as
 // an error for convenience.
 func (l *Logger) Error(args ...interface{}) error {
-	return entryToError(l.log(Error, args))
+	return entryToError(l.log(ERROR, args))
 }
 
 var DefaultExit = true
 
 // Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
 func (l *Logger) Fatal(args ...interface{}) {
-	l.log(Fatal, args)
+	l.log(FATAL, args)
 	l.Flush()
 	if l.exit {
 		os.Exit(1)

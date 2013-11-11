@@ -14,11 +14,11 @@ const DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:l
 
 // DefaultTermStyle defines the default colors/style used by NewTermLogger
 var DefaultTermStyle = map[Level]TermStyle{
-	Debug: DarkGrey,
-	Info:  Black,
-	Warn:  Yellow,
-	Error: Red,
-	Fatal: White | BgRed,
+	DEBUG: DarkGrey,
+	INFO:  Black,
+	WARN:  Yellow,
+	ERROR: Red,
+	FATAL: White | BgRed,
 }
 
 // NewTermWriter returns a *Logger that writes to os.Stdout using the
