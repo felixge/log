@@ -10,7 +10,7 @@ import (
 
 // TermStyle provides a simple abstraction for ANSI/VT100 color/style escape
 // sequences.
-type TermStyle int
+type TermStyle int64
 
 const (
 	// Foreground colors
