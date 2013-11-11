@@ -15,7 +15,7 @@ var (
 )
 
 // ParseLevel returns the Level value for the given string, or an error if
-// such a level does not exist. e.G. "debug" will return Debug.
+// such a level does not exist. e.G. "debug" will return DEBUG.
 func ParseLevel(s string) (Level, error) {
 	s = strings.ToLower(s)
 	for lvl, lvlStr := range levels {
