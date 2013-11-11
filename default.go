@@ -1,5 +1,9 @@
 package log
 
+import (
+	"time"
+)
+
 var (
 	DefaultLogger = NewTermLogger()
 	// DefaultFormat defines the default log format used by NewTermLogger.
@@ -12,6 +16,8 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
+	DefaultExit = true
+	DefaultFlushTimeout = 30 * time.Second
 )
 
 func Debug(args ...interface{}) {

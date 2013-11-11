@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+var (
+	ErrFlushTimeout     = errors.New("Flush timed out.")
+)
+
 // ParseLevel returns the Level value for the given string, or an error if
 // such a level does not exist. e.G. "debug" will return Debug.
 func ParseLevel(s string) (Level, error) {
@@ -157,7 +161,6 @@ func (l *Logger) Error(args ...interface{}) error {
 	return entryToError(l.log(ERROR, args))
 }
 
-var DefaultExit = true
 
 // Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
 func (l *Logger) Fatal(args ...interface{}) {
@@ -178,11 +181,6 @@ func (l *Logger) Panic() {
 		}
 	}
 }
-
-var (
-	DefaultFlushTimeout = 30 * time.Second
-	ErrFlushTimeout     = errors.New("Flush timed out.")
-)
 
 func (l *Logger) Flush() error {
 	l.flushLock.Lock()
