@@ -91,11 +91,11 @@ func (l *LineWriter) loop() {
 			}
 		}
 
-		line := strings.Replace(l.format.Format(e), "\n", "", -1) + "\n"
+		line := strings.Replace(l.format.Format(e), "\n", "", -1)
 		if style, ok := l.style[e.Level]; ok {
 			line = style.Format(line)
 		}
-		io.WriteString(l.w, line)
+		io.WriteString(l.w, line+"\n")
 	}
 }
 

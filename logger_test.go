@@ -11,7 +11,7 @@ import (
 func TestLogger(t *testing.T) {
 	l := NewLogger()
 	w := NewTestWriter()
-	l.Handle(Debug, w)
+	l.Handle(DEBUG, w)
 
 	l.Debug("Test A")
 	l.Info("Test B")
@@ -25,16 +25,16 @@ func TestLogger(t *testing.T) {
 		t.Errorf("Bad #entries: %d", entries)
 	}
 
-	if !w.MatchLevel("A$", Debug) {
+	if !w.MatchLevel("A$", DEBUG) {
 		t.Errorf("Missing entry: A")
 	}
-	if !w.MatchLevel("B$", Info) {
+	if !w.MatchLevel("B$", INFO) {
 		t.Errorf("Missing entry: B")
 	}
-	if !w.MatchLevel("C$", Warn) {
+	if !w.MatchLevel("C$", WARN) {
 		t.Errorf("Missing entry: C")
 	}
-	if !w.MatchLevel("D$", Error) {
+	if !w.MatchLevel("D$", ERROR) {
 		t.Errorf("Missing entry: D")
 	}
 }
@@ -104,7 +104,7 @@ func TestLogger_Panic(t *testing.T) {
 	}()
 	wg.Wait()
 
-	if !w.MatchLevel("panic: oh no", Fatal) {
+	if !w.MatchLevel("panic: oh no", FATAL) {
 		t.Error("Panic was not logged.")
 	}
 	e := w.Entries[0]
@@ -119,7 +119,7 @@ func TestLogger_Panic(t *testing.T) {
 
 func TestNewEntry(t *testing.T) {
 	pc, file, line, _ := runtime.Caller(0)
-	e := NewEntry(Debug, "Hello %s", "World")
+	e := NewEntry(DEBUG, "Hello %s", "World")
 	fn := runtime.FuncForPC(pc).Name()
 
 	t.Logf("fn: %s", fn)
