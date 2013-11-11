@@ -1,6 +1,18 @@
 package log
 
-var DefaultLogger = NewTermLogger()
+var (
+	DefaultLogger = NewTermLogger()
+	// DefaultFormat defines the default log format used by NewTermLogger.
+	DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
+	// DefaultTermStyle defines the default colors/style used by NewTermLogger
+	DefaultTermStyle = map[Level]TermStyle{
+		DEBUG: DarkGrey,
+		INFO:  0,
+		WARN:  Yellow,
+		ERROR: Red,
+		FATAL: White | BgRed,
+	}
+)
 
 func Debug(args ...interface{}) {
 	DefaultLogger.Debug(args...)

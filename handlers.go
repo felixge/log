@@ -9,18 +9,6 @@ import (
 	"time"
 )
 
-// DefaultFormat defines the default log format used by NewTermLogger.
-const DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
-
-// DefaultTermStyle defines the default colors/style used by NewTermLogger
-var DefaultTermStyle = map[Level]TermStyle{
-	DEBUG: DarkGrey,
-	INFO:  0,
-	WARN:  Yellow,
-	ERROR: Red,
-	FATAL: White | BgRed,
-}
-
 // NewTermWriter returns a *Logger that writes to os.Stdout using the
 // DefaultFormat and DefaultTermStyle.
 func NewTermLogger() *Logger {
