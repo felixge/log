@@ -10,7 +10,7 @@ import (
 
 func TestLogger(t *testing.T) {
 	l := NewLogger()
-	w := NewTestWriter()
+	w := NewTestHandler()
 	l.Handle(DEBUG, w)
 
 	l.Debug("Test A")
@@ -87,7 +87,7 @@ func TestLogger_Flush(t *testing.T) {
 func TestLogger_Panic(t *testing.T) {
 	var (
 		wg   sync.WaitGroup
-		w    = NewTestWriter()
+		w    = NewTestHandler()
 		l    = NewLogger(w)
 		file string
 		line int

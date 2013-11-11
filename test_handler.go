@@ -2,44 +2,37 @@ package log
 
 import (
 	"io"
-	"os"
 	"regexp"
 	"time"
 )
 
-// NewTermWriter returns a *Logger that writes to os.Stdout using the
-// DefaultFormat and DefaultTermStyle.
-func NewTermLogger() *Logger {
-	return NewLogger(NewLineWriter(os.Stdout, DefaultFormat, DefaultTermStyle))
+// NewTestHandler returns a new *TestHandler.
+func NewTestHandler() *TestHandler {
+	return &TestHandler{}
 }
 
-// NewTestWriter returns a new *TestWriter.
-func NewTestWriter() *TestWriter {
-	return &TestWriter{}
-}
-
-// TestWriter is a Handler that simplifies writing unit tests for logging.
-type TestWriter struct {
+// TestHandler is a Handler that simplifies writing unit tests for logging.
+type TestHandler struct {
 	Entries []Entry
 }
 
 // HandleLog attaches the given Entry to the Entries slice.
-func (w *TestWriter) HandleLog(e Entry) {
+func (w *TestHandler) HandleLog(e Entry) {
 	w.Entries = append(w.Entries, e)
 }
 
-// Flush satifies the Handler interface, but is a no-op for *TestWriter.
-func (w *TestWriter) Flush() {}
+// Flush satifies the Handler interface, but is a no-op for *TestHandler.
+func (w *TestHandler) Flush() {}
 
 // Match returns true if the regular expr matches the Message of a log
 // Entry in the Entries slices.
-func (w *TestWriter) Match(expr string) bool {
+func (w *TestHandler) Match(expr string) bool {
 	return w.MatchLevel(expr, -1)
 }
 
 // Match returns true if the regular expr and lvl matches a log Entry in the
 // Entries slices.
-func (w *TestWriter) MatchLevel(expr string, lvl Level) bool {
+func (w *TestHandler) MatchLevel(expr string, lvl Level) bool {
 	r := regexp.MustCompile(expr)
 	for _, e := range w.Entries {
 		if r.MatchString(e.Message) && e.Level == lvl || lvl == -1 {
