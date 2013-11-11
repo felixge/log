@@ -2,6 +2,8 @@ package log
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 // @TODO rename file to termstyle.go
@@ -57,7 +59,7 @@ const (
 )
 
 // from http://misc.flogisoft.com/bash/tip_colors_and_formatting
-var codes = map[TermStyle]uint8{
+var styleMap = map[TermStyle]uint8{
 	Bold:       1,
 	Dim:        2,
 	Underlined: 4,
@@ -102,10 +104,12 @@ var codes = map[TermStyle]uint8{
 
 // Format wraps the given str with the right terminal escape sequences.
 func (s TermStyle) Format(str string) string {
-	for style, code := range codes {
+	codes := []string{}
+	for style, code := range styleMap {
 		if s&style > 0 {
-			str = fmt.Sprintf("\033[%dm%s\033[0m", code, str)
+			codes = append(codes, strconv.FormatInt(int64(code), 10))
 		}
 	}
+	str = fmt.Sprintf("\033[%sm%s\033[0m", strings.Join(codes, ";"), str)
 	return str
 }
