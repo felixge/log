@@ -18,6 +18,15 @@ func NewEntry(lvl Level, args ...interface{}) Entry {
 	}
 }
 
+type Entry struct {
+	Time     time.Time
+	Level    Level
+	Message  string
+	File     string
+	Function string
+	Line     int
+}
+
 func getCaller() (fn, file string, line int) {
 	var (
 		skip   = 0
@@ -41,13 +50,4 @@ func getCaller() (fn, file string, line int) {
 		}
 	}
 	return fn, file, line
-}
-
-type Entry struct {
-	Time     time.Time
-	Level    Level
-	Message  string
-	File     string
-	Function string
-	Line     int
 }
