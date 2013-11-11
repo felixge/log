@@ -99,7 +99,7 @@ func TestLogger_Panic(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		defer l.Panic()
-		_, file, line, _ = runtime.Caller(0)
+		_, file, line, _ = runtime.Caller(1)
 		panic("oh no")
 	}()
 	wg.Wait()
@@ -110,24 +110,23 @@ func TestLogger_Panic(t *testing.T) {
 	e := w.Entries[0]
 
 	if e.File != file {
-		t.Errorf("Bad line: %s != %s", e.File, file)
+		t.Errorf("Bad file: %s != %s", e.File, file)
 	}
-	if e.Line != line+1 {
-		t.Errorf("Bad file: %d != %d", e.Line, line+1)
+	if e.Line != line {
+		t.Errorf("Bad line: %d != %d", e.Line, line)
 	}
 }
 
 func TestNewEntry(t *testing.T) {
-	pc, file, line, _ := runtime.Caller(0)
+	pc, file, line, _ := runtime.Caller(1)
 	e := NewEntry(DEBUG, "Hello %s", "World")
 	fn := runtime.FuncForPC(pc).Name()
 
-	t.Logf("fn: %s", fn)
 	if e.File != file {
 		t.Errorf("Bad file: %s != %s", e.File, file)
 	}
-	if e.Line != line+1 {
-		t.Errorf("Bad line: %d != %d", e.Line, line+1)
+	if e.Line != line {
+		t.Errorf("Bad line: %d != %d", e.Line, line)
 	}
 	if e.Function != fn {
 		t.Errorf("Bad function: %d != %d", e.Function, fn)

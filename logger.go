@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -73,52 +72,6 @@ type Handler interface {
 	Flush()
 }
 
-func NewEntry(lvl Level, args ...interface{}) Entry {
-	fn, file, line := getCaller()
-	return Entry{
-		Time:     time.Now(),
-		Level:    lvl,
-		Message:  formatMessage(args),
-		File:     file,
-		Line:     line,
-		Function: fn,
-	}
-}
-
-func getCaller() (fn, file string, line int) {
-	var (
-		skip     = 0
-		thisFile string
-		ok       bool
-		pc       uintptr
-	)
-
-	for ; ; skip++ {
-		pc, file, line, ok = runtime.Caller(skip)
-		if !ok {
-			break
-		} else if skip == 0 {
-			thisFile = file
-			continue
-		} else if file != thisFile {
-			fn = runtime.FuncForPC(pc).Name()
-			if fn != "runtime.panic" {
-				break
-			}
-		}
-	}
-	return fn, file, line
-}
-
-type Entry struct {
-	Time     time.Time
-	Level    Level
-	Message  string
-	File     string
-	Function string
-	Line     int
-}
-
 func NewLogger(handlers ...Handler) *Logger {
 	l := &Logger{flushTimeout: DefaultFlushTimeout, exit: DefaultExit}
 	for _, h := range handlers {
@@ -159,7 +112,6 @@ func (l *Logger) Warn(args ...interface{}) {
 func (l *Logger) Error(args ...interface{}) error {
 	return entryToError(l.log(ERROR, args))
 }
-
 
 // Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
 func (l *Logger) Fatal(args ...interface{}) {
