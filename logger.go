@@ -26,7 +26,6 @@ func ParseLevel(s string) (Level, error) {
 	return 0, fmt.Errorf("Unknown level: %s", s)
 }
 
-// Level defines a log level.
 type Level int
 
 // String returns the human readable name of the log level. e.G. Debug will
@@ -36,7 +35,7 @@ func (l Level) String() string {
 }
 
 // The available log levels along with their recommended usage. Always log at
-// the info Level in production.
+// the INFO level in production.
 const (
 	DEBUG Level = iota // Development details (e.g. raw input data)
 	INFO               // Regular event (e.g. user login)
