@@ -2,11 +2,10 @@ package log
 
 import (
 	"os"
-	"time"
 )
 
 var (
-	DefaultLogger = NewLogger(NewLineHandler(os.Stdout, DefaultFormat, DefaultTermStyle))
+	DefaultLogger = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormat, DefaultTermStyle))
 	// DefaultFormat defines the default log format used by NewTermLogger.
 	DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
 	// DefaultTermStyle defines the default colors/style used by NewTermLogger
@@ -17,8 +16,6 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
-	DefaultExit         = true
-	DefaultFlushTimeout = 30 * time.Second
 )
 
 func Debug(args ...interface{}) {

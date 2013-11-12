@@ -21,7 +21,7 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 	defer runtime.GOMAXPROCS(before)
 
 	wc := &WriteCounter{}
-	l := NewLogger()
+	l := NewLogger(DefaultConfig)
 	l.Handle(DEBUG, NewLineHandler(wc, DefaultFormat, nil))
 
 	start := time.Now()

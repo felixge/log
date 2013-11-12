@@ -72,8 +72,18 @@ type Handler interface {
 	Flush()
 }
 
-func NewLogger(handlers ...Handler) *Logger {
-	l := &Logger{flushTimeout: DefaultFlushTimeout, exit: DefaultExit}
+type Config struct {
+	FlushTimeout time.Duration
+	FatalExit    bool
+}
+
+var DefaultConfig = Config{
+	FlushTimeout: 30 * time.Second,
+	FatalExit:    true,
+}
+
+func NewLogger(config Config, handlers ...Handler) *Logger {
+	l := &Logger{config: config}
 	for _, h := range handlers {
 		l.Handle(DEBUG, h)
 	}
@@ -81,10 +91,9 @@ func NewLogger(handlers ...Handler) *Logger {
 }
 
 type Logger struct {
-	handlers     []*logHandler
-	flushTimeout time.Duration
-	flushLock    sync.Mutex
-	exit         bool
+	config    Config
+	handlers  []*logHandler
+	flushLock sync.Mutex
 }
 
 type logHandler struct {
@@ -117,7 +126,7 @@ func (l *Logger) Error(args ...interface{}) error {
 func (l *Logger) Fatal(args ...interface{}) {
 	l.log(FATAL, args)
 	l.Flush()
-	if l.exit {
+	if l.config.FatalExit {
 		os.Exit(1)
 	}
 }
@@ -152,18 +161,10 @@ func (l *Logger) Flush() error {
 		err <- nil
 	}()
 	go func() {
-		time.Sleep(l.flushTimeout)
+		time.Sleep(l.config.FlushTimeout)
 		err <- ErrFlushTimeout
 	}()
 	return <-err
-}
-
-func (l *Logger) SetFlushTimeout(d time.Duration) {
-	l.flushTimeout = d
-}
-
-func (l *Logger) SetExit(exit bool) {
-	l.exit = false
 }
 
 func (l *Logger) Handle(lvl Level, handler Handler) {

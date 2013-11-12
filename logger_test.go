@@ -9,7 +9,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	l := NewLogger()
+	l := NewLogger(DefaultConfig)
 	w := NewTestHandler()
 	l.Handle(DEBUG, w)
 
@@ -48,7 +48,7 @@ func TestLogger_Flush(t *testing.T) {
 		dt    = 10 * time.Millisecond
 		count = 10
 		w     = NewLineHandler(NewSlowWriter(b, dt), DefaultFormat, DefaultTermStyle)
-		l     = NewLogger(w)
+		l     = NewLogger(DefaultConfig, w)
 	)
 
 	start := time.Now()
@@ -88,12 +88,10 @@ func TestLogger_Panic(t *testing.T) {
 	var (
 		wg   sync.WaitGroup
 		w    = NewTestHandler()
-		l    = NewLogger(w)
+		l    = NewLogger(Config{FatalExit: false}, w)
 		file string
 		line int
 	)
-
-	l.SetExit(false)
 
 	wg.Add(1)
 	go func() {
