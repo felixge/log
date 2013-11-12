@@ -4,6 +4,12 @@ import (
 	"regexp"
 )
 
+func NewTestLogger() (*Logger, *TestHandler) {
+	t := NewTestHandler()
+	l := NewLogger(DefaultConfig, t)
+	return l, t
+}
+
 // NewTestHandler returns a new *TestHandler.
 func NewTestHandler() *TestHandler {
 	return &TestHandler{}

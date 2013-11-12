@@ -9,9 +9,7 @@ import (
 )
 
 func TestLogger(t *testing.T) {
-	l := NewLogger(DefaultConfig)
-	w := NewTestHandler()
-	l.Handle(DEBUG, w)
+	l, w := NewTestLogger()
 
 	l.Debug("Test A")
 	l.Info("Test B")
