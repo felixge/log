@@ -47,7 +47,7 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 		b.Fatalf("Bad write count: %d != %d", wc.Count(), total)
 	}
 	hz := NewHz(total, duration)
-	b.Logf("%s", hz)
+	b.Logf("%s (%d ops in %s)", hz, total, duration)
 }
 
 type WriteCounter struct {
