@@ -20,8 +20,8 @@ type TestHandler struct {
 	Entries []Entry
 }
 
-// HandleLog attaches the given Entry to the Entries slice.
-func (w *TestHandler) HandleLog(e Entry) {
+// Log attaches the given Entry to the Entries slice.
+func (w *TestHandler) Log(e Entry) {
 	w.Entries = append(w.Entries, e)
 }
 

@@ -107,7 +107,7 @@ func (l *Logger) log(lvl Level, args []interface{}) Entry {
 
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
-			h.handler.HandleLog(e)
+			h.handler.Log(e)
 		}
 	}
 	return e

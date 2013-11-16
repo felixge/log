@@ -58,7 +58,7 @@ func NewFileWriter(path string) *FileWriter {
 	return NewFileWriterConfig(config)
 }
 
-func (w *FileWriter) HandleLog(entry Entry) {
+func (w *FileWriter) Log(entry Entry) {
 	if w.config.Blocking {
 		w.opCh <- entry
 	} else {

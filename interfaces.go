@@ -17,11 +17,11 @@ type Interface interface {
 
 // Handler is used to implement log handlers.
 type Handler interface {
-	// HandleLog processes the given Entry (e.g. writes it to a file, sends it to
+	// Log processes the given Entry (e.g. writes it to a file, sends it to
 	// a log service)
-	HandleLog(Entry)
+	Log(Entry)
 	// Flush waits for any buffered data to be flushed and blocks new calls
-	// to HandleLog until it returns.
+	// to Log until it returns.
 	Flush()
 }
 
