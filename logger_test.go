@@ -45,7 +45,7 @@ func TestLogger_Flush(t *testing.T) {
 		b     = &bytes.Buffer{}
 		dt    = 10 * time.Millisecond
 		count = 10
-		w     = NewLineHandler(NewSlowWriter(b, dt), DefaultFormat, DefaultTermStyle)
+		w     = NewLineHandler(NewSlowWriter(b, dt), DefaultFormatter)
 		l     = NewLogger(DefaultConfig, w)
 	)
 

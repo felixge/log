@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func NewFormat(layout string) *Format {
-	f := &Format{layout: layout}
+func NewLineFormatter(layout string, style map[Level]TermStyle) *LineFormatter {
+	f := &LineFormatter{layout: layout}
 	f.compile()
 	return f
 }
 
-type Format struct {
+type LineFormatter struct {
 	layout    string
 	isUTC     bool
 	positions positions
@@ -44,7 +44,7 @@ var tokens = map[string]string{
 	"message":  "%s",
 }
 
-func (f *Format) Format(e Entry) string {
+func (f *LineFormatter) Format(e Entry) string {
 	layout := f.layout
 	if f.isUTC {
 		layout = e.Time.UTC().Format(layout)
@@ -76,7 +76,7 @@ func (f *Format) Format(e Entry) string {
 // 2006/01/02 15:04:05.000 level message file/line/function
 // layout: 2006/01/02 15:04:05.000 %s %s %s/%d/%s
 
-func (f *Format) compile() {
+func (f *LineFormatter) compile() {
 	for token, _ := range tokens {
 		r := regexp.MustCompile(token)
 		matches := r.FindAllStringIndex(f.layout, -1)

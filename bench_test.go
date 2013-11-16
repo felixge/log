@@ -22,7 +22,7 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 
 	wc := &WriteCounter{}
 	l := NewLogger(DefaultConfig)
-	l.Handle(DEBUG, NewLineHandler(wc, DefaultFormat, nil))
+	l.Handle(DEBUG, NewLineHandler(wc, DefaultFormatter))
 
 	start := time.Now()
 	b.ResetTimer()

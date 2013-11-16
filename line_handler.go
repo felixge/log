@@ -2,19 +2,17 @@ package log
 
 import (
 	"io"
-	"strings"
 	"sync"
 )
 
 // NewLineHandler returns a Handler that writes newline separated log entries
 // to the given io.Writer w using the provided format and style.
-func NewLineHandler(w io.Writer, format string, style map[Level]TermStyle) *LineHandler {
+func NewLineHandler(w io.Writer, formatter Formatter) *LineHandler {
 	l := &LineHandler{
-		w:        w,
-		format:   NewFormat(format),
-		style:    style,
-		entries:  make(chan Entry, 1024),
-		flushReq: make(chan chan struct{}),
+		w:         w,
+		formatter: formatter,
+		flushReq:  make(chan chan struct{}),
+		entries:   make(chan Entry),
 	}
 	go l.loop()
 	return l
@@ -23,9 +21,8 @@ func NewLineHandler(w io.Writer, format string, style map[Level]TermStyle) *Line
 // LineHandler is a Handler that provides newline separated logging.
 type LineHandler struct {
 	w         io.Writer
-	format    *Format
-	style     map[Level]TermStyle
-	entries   chan Entry // @TODO rename to entries
+	formatter Formatter
+	entries   chan Entry
 	flushReq  chan chan struct{}
 	flushLock sync.Mutex
 }
@@ -70,10 +67,7 @@ func (l *LineHandler) loop() {
 			}
 		}
 
-		line := strings.Replace(l.format.Format(e), "\n", "", -1)
-		if style, ok := l.style[e.Level]; ok {
-			line = style.Format(line)
-		}
-		io.WriteString(l.w, line+"\n")
+		line := l.formatter.Format(e)
+		io.WriteString(l.w, line)
 	}
 }

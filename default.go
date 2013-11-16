@@ -5,10 +5,7 @@ import (
 )
 
 var (
-	DefaultLogger = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormat, DefaultTermStyle))
-	// DefaultFormat defines the default log format used by NewTermLogger.
-	DefaultFormat = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
-	// DefaultTermStyle defines the default colors/style used by NewTermLogger
+	DefaultLayout    = "[2006-01-02 15:04:05.000 UTC] [level] message (function:line)"
 	DefaultTermStyle = map[Level]TermStyle{
 		DEBUG: DarkGrey,
 		INFO:  0,
@@ -16,6 +13,8 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
+	DefaultFormatter = NewLineFormatter(DefaultLayout, DefaultTermStyle)
+	DefaultLogger    = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormatter))
 )
 
 func Debug(args ...interface{}) {
