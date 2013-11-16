@@ -26,8 +26,8 @@ func NewLogger(config Config, handlers ...Handler) *Logger {
 }
 
 type Logger struct {
-	config    Config
-	handlers  []*logHandler
+	config   Config
+	handlers []*logHandler
 }
 
 type logHandler struct {

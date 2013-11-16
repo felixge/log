@@ -17,7 +17,7 @@ type LineFormatter struct {
 	layout    string
 	isUTC     bool
 	positions positions
-	style map[Level]TermStyle
+	style     map[Level]TermStyle
 }
 
 type positions []position
@@ -75,7 +75,7 @@ func (f *LineFormatter) Format(e Entry) string {
 		layout = style.Format(layout)
 	}
 
-	return fmt.Sprintf(layout, args...)+"\n"
+	return fmt.Sprintf(layout, args...) + "\n"
 }
 
 // 2006/01/02 15:04:05.000 level message file/line/function

@@ -15,7 +15,7 @@ func main() {
 	l := log.NewLogger(log.DefaultConfig, file)
 
 	start := time.Now()
-	for i := 0; i < 1000000; i++{
+	for i := 0; i < 1000000; i++ {
 		l.Debug("Entry %d", i)
 		//time.Sleep(time.Microsecond)
 	}

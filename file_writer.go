@@ -11,7 +11,7 @@ import (
 type FileWriterConfig struct {
 	Path         string
 	Perm         os.FileMode
-	Writer         io.Writer
+	Writer       io.Writer
 	Formatter    Formatter
 	RotateSignal os.Signal
 	ErrorHandler ErrorHandler

@@ -20,7 +20,6 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 	)
 	defer runtime.GOMAXPROCS(before)
 
-
 	config := DefaultFileWriterConfig
 	config.Blocking = true
 	config.Writer = ioutil.Discard
