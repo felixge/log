@@ -123,13 +123,13 @@ func (w *FileWriter) rotateLoop(rotateCh <-chan os.Signal) {
 }
 
 func (w *FileWriter) rotate() {
+	if err := w.buf.Flush(); err != nil {
+		w.error(err)
+	}
 	if err := w.file.Close(); err != nil {
 		w.error(err)
-	} else {
-		if err := w.buf.Flush(); err != nil {
-			w.error(err)
-		}
 	}
+	w.open()
 }
 
 func (w *FileWriter) error(err error) {

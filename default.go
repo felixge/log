@@ -26,12 +26,13 @@ var (
 		e := NewEntry(ERROR, "%s", err)
 		fmt.Fprint(os.Stderr, DefaultFormatter.Format(e))
 	}
+	DefaultBufSize          = 4096
 	DefaultFileWriterConfig = FileWriterConfig{
 		Perm:         0600,
 		Formatter:    DefaultFormatter,
 		RotateSignal: syscall.SIGUSR1,
 		ErrorHandler: DefaultErrorHandler,
-		BufSize:      4096,
+		BufSize:      DefaultBufSize,
 		Capacity:     1024,
 		Blocking:     false,
 	}
@@ -39,8 +40,8 @@ var (
 		Writer:       os.Stdout,
 		Formatter:    DefaultColorFormatter,
 		ErrorHandler: DefaultErrorHandler,
-		BufSize:      4096,
-		Capacity:     1024,
+		BufSize:      DefaultBufSize,
+		Capacity:     0,
 		Blocking:     true,
 	}
 	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
