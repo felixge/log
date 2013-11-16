@@ -1,5 +1,9 @@
 package log
 
+import (
+	"errors"
+)
+
 // Interface defines the log interface provided by this package. Use this when
 // passing *Logger instances around.
 type Interface interface {
@@ -24,3 +28,7 @@ type Handler interface {
 type Formatter interface {
 	Format(e Entry) string
 }
+
+type ErrorHandler func(error)
+
+var ErrDroppedEntry = errors.New("Logging too fast, dropped log entry.")

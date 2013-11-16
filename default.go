@@ -1,7 +1,9 @@
 package log
 
 import (
+	"fmt"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -14,12 +16,35 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
-	DefaultFormatter = NewLineFormatter(DefaultLayout, DefaultTermStyle)
-	DefaultConfig    = Config{
+	DefaultFormatter      = NewLineFormatter(DefaultLayout, nil)
+	DefaultColorFormatter = NewLineFormatter(DefaultLayout, DefaultTermStyle)
+	DefaultConfig         = Config{
 		FlushTimeout: 30 * time.Second,
 		FatalExit:    true,
 	}
-	DefaultLogger = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormatter))
+	DefaultErrorHandler = func(err error) {
+		e := NewEntry(ERROR, "%s", err)
+		fmt.Fprint(os.Stderr, DefaultFormatter.Format(e))
+	}
+	DefaultFileWriterConfig = FileWriterConfig{
+		Perm:         0600,
+		Formatter:    DefaultFormatter,
+		RotateSignal: syscall.SIGUSR1,
+		ErrorHandler: DefaultErrorHandler,
+		BufSize:      4096,
+		Capacity:     1024,
+		Blocking:     false,
+	}
+	DefaultTermConfig = FileWriterConfig{
+		Writer:       os.Stdout,
+		Formatter:    DefaultColorFormatter,
+		ErrorHandler: DefaultErrorHandler,
+		BufSize:      4096,
+		Capacity:     1024,
+		Blocking:     true,
+	}
+	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
+	DefaultLogger = NewLogger(DefaultConfig, DefaultWriter)
 )
 
 func Debug(args ...interface{}) {
@@ -41,3 +66,5 @@ func Error(args ...interface{}) error {
 func Fatal(args ...interface{}) {
 	DefaultLogger.Fatal(args...)
 }
+
+// @TODO Panic level

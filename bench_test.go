@@ -2,9 +2,9 @@ package log
 
 import (
 	"fmt"
+	"io/ioutil"
 	"runtime"
 	"sync"
-	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -20,9 +20,12 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 	)
 	defer runtime.GOMAXPROCS(before)
 
-	wc := &WriteCounter{}
+
+	config := DefaultFileWriterConfig
+	config.Blocking = true
+	config.Writer = ioutil.Discard
 	l := NewLogger(DefaultConfig)
-	l.Handle(DEBUG, NewLineHandler(wc, DefaultFormatter))
+	l.Handle(DEBUG, NewFileWriterConfig(config))
 
 	start := time.Now()
 	b.ResetTimer()
@@ -43,24 +46,8 @@ func BenchmarkDiscardLineLogger(b *testing.B) {
 	duration := time.Since(start)
 
 	total := b.N * cpus
-	if wc.Count() != total {
-		b.Fatalf("Bad write count: %d != %d", wc.Count(), total)
-	}
 	hz := NewHz(total, duration)
 	b.Logf("%s (%d ops in %s)", hz, total, duration)
-}
-
-type WriteCounter struct {
-	count int32
-}
-
-func (w *WriteCounter) Write(buf []byte) (int, error) {
-	atomic.AddInt32(&w.count, 1)
-	return len(buf), nil
-}
-
-func (w *WriteCounter) Count() int {
-	return int(atomic.LoadInt32(&w.count))
 }
 
 var prefixes = map[int]string{

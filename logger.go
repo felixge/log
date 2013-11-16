@@ -28,7 +28,6 @@ func NewLogger(config Config, handlers ...Handler) *Logger {
 type Logger struct {
 	config    Config
 	handlers  []*logHandler
-	flushLock sync.Mutex
 }
 
 type logHandler struct {
@@ -78,9 +77,6 @@ func (l *Logger) Panic() {
 }
 
 func (l *Logger) Flush() error {
-	l.flushLock.Lock()
-	defer l.flushLock.Unlock()
-
 	var wg sync.WaitGroup
 	for _, h := range l.handlers {
 		wg.Add(1)
@@ -108,9 +104,6 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 
 func (l *Logger) log(lvl Level, args []interface{}) Entry {
 	e := NewEntry(lvl, args...)
-
-	l.flushLock.Lock()
-	defer l.flushLock.Unlock()
 
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
