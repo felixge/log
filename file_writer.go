@@ -2,7 +2,6 @@ package log
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"os/signal"
@@ -61,13 +60,14 @@ func NewFileWriter(path string) *FileWriter {
 func (w *FileWriter) Log(entry Entry) {
 	if w.config.Blocking {
 		w.opCh <- entry
-	} else {
-		select {
-		case w.opCh <- entry:
-		default:
-			w.error(fmt.Errorf("FileWriter: Dropped log entry."))
-			return
-		}
+		return
+	}
+
+	select {
+	case w.opCh <- entry:
+	default:
+		w.error(&ErrEntryDropped{entry})
+		return
 	}
 }
 
@@ -83,10 +83,10 @@ func (w *FileWriter) open() {
 		w.error(err)
 		w.file = nil
 		w.buf = nil
-	} else {
-		w.file = file
-		w.buf = bufio.NewWriterSize(w.file, w.config.BufSize)
+		return
 	}
+	w.file = file
+	w.buf = bufio.NewWriterSize(w.file, w.config.BufSize)
 }
 
 func (w *FileWriter) opLoop() {
