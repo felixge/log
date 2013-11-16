@@ -66,7 +66,7 @@ func (f *LineFormatter) Format(e Entry) string {
 		case "function":
 			val = e.Function
 		case "message":
-			val = e.Message
+			val = f.formatMessage(e.Args)
 		}
 		args[i] = val
 	}
@@ -76,6 +76,15 @@ func (f *LineFormatter) Format(e Entry) string {
 	}
 
 	return fmt.Sprintf(layout, args...) + "\n"
+}
+
+func (f *LineFormatter) formatMessage(args []interface{}) string {
+	if len(args) > 0 {
+		if formatMessage, ok := args[0].(string); ok {
+			return fmt.Sprintf(formatMessage, args[1:]...)
+		}
+	}
+	return fmt.Sprint(args...)
 }
 
 // 2006/01/02 15:04:05.000 level message file/line/function

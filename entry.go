@@ -11,7 +11,7 @@ func NewEntry(lvl Level, args ...interface{}) Entry {
 	return Entry{
 		Time:     time.Now(),
 		Level:    lvl,
-		Message:  formatMessage(args),
+		Args:     args,
 		File:     file,
 		Line:     line,
 		Function: fn,
@@ -21,7 +21,7 @@ func NewEntry(lvl Level, args ...interface{}) Entry {
 type Entry struct {
 	Time     time.Time
 	Level    Level
-	Message  string
+	Args     []interface{}
 	File     string
 	Function string
 	Line     int

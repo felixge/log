@@ -2,6 +2,7 @@ package log
 
 import (
 	"regexp"
+	"strings"
 )
 
 func NewTestLogger() (*Logger, *TestHandler) {
@@ -12,12 +13,13 @@ func NewTestLogger() (*Logger, *TestHandler) {
 
 // NewTestHandler returns a new *TestHandler.
 func NewTestHandler() *TestHandler {
-	return &TestHandler{}
+	return &TestHandler{formatter: DefaultMessageFormatter}
 }
 
 // TestHandler is a Handler that simplifies writing unit tests for logging.
 type TestHandler struct {
 	Entries []Entry
+	formatter Formatter
 }
 
 // Log attaches the given Entry to the Entries slice.
@@ -39,7 +41,8 @@ func (w *TestHandler) Match(expr string) bool {
 func (w *TestHandler) MatchLevel(expr string, lvl Level) bool {
 	r := regexp.MustCompile(expr)
 	for _, e := range w.Entries {
-		if r.MatchString(e.Message) && e.Level == lvl || lvl == -1 {
+		message := strings.TrimRight(w.formatter.Format(e), "\n")
+		if r.MatchString(message) && e.Level == lvl || lvl == -1 {
 			return true
 		}
 	}

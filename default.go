@@ -16,9 +16,10 @@ var (
 		ERROR: Red,
 		FATAL: White | BgRed,
 	}
-	DefaultFormatter      = NewLineFormatter(DefaultLayout, nil)
-	DefaultColorFormatter = NewLineFormatter(DefaultLayout, DefaultTermStyle)
-	DefaultConfig         = Config{
+	DefaultFormatter        = NewLineFormatter(DefaultLayout, nil)
+	DefaultColorFormatter   = NewLineFormatter(DefaultLayout, DefaultTermStyle)
+	DefaultMessageFormatter = NewLineFormatter("message", nil)
+	DefaultConfig           = Config{
 		FlushTimeout: 30 * time.Second,
 		FatalExit:    true,
 	}

@@ -2,8 +2,8 @@ package log
 
 import (
 	"errors"
-	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -53,7 +53,9 @@ func (l *Logger) Warn(args ...interface{}) {
 // Error logs at the Error level and returns the formatted error message as
 // an error for convenience.
 func (l *Logger) Error(args ...interface{}) error {
-	return entryToError(l.log(ERROR, args))
+	message := DefaultMessageFormatter.Format((l.log(ERROR, args)))
+	message = strings.TrimRight(message, "\n")
+	return errors.New(message)
 }
 
 // Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
@@ -111,17 +113,4 @@ func (l *Logger) log(lvl Level, args []interface{}) Entry {
 		}
 	}
 	return e
-}
-
-func formatMessage(args []interface{}) string {
-	if len(args) > 0 {
-		if formatMessage, ok := args[0].(string); ok {
-			return fmt.Sprintf(formatMessage, args[1:]...)
-		}
-	}
-	return fmt.Sprint(args...)
-}
-
-func entryToError(e Entry) error {
-	return errors.New(e.Message)
 }

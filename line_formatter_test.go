@@ -7,10 +7,11 @@ import (
 )
 
 func TestLineFormatterFormat_defaultLayout(t *testing.T) {
+	message := "foo"
 	e := Entry{
 		Time:     time.Now(),
 		Level:    INFO,
-		Message:  "foo",
+		Args:     []interface{}{message},
 		File:     "bar.go",
 		Line:     23,
 		Function: "foo.bar",
@@ -22,7 +23,7 @@ func TestLineFormatterFormat_defaultLayout(t *testing.T) {
 		"[%s UTC] [%s] %s (%s:%d)\n",
 		e.Time.UTC().Format("2006-01-02 15:04:05.000"),
 		INFO,
-		e.Message,
+		message,
 		e.Function,
 		e.Line,
 	)
@@ -32,10 +33,11 @@ func TestLineFormatterFormat_defaultLayout(t *testing.T) {
 }
 
 func TestLineFormatterFormat_customFormat(t *testing.T) {
+	message := "foo"
 	e := Entry{
 		Time:     time.Now(),
 		Level:    INFO,
-		Message:  "foo",
+		Args:     []interface{}{message},
 		File:     "bar.go",
 		Line:     23,
 		Function: "foo.bar",
@@ -47,7 +49,7 @@ func TestLineFormatterFormat_customFormat(t *testing.T) {
 		"%s %s %s %s/%d/%s\n",
 		e.Time.Format("2006/01/02 15:04:05.000"),
 		INFO,
-		e.Message,
+		message,
 		e.File,
 		e.Line,
 		e.Function,
