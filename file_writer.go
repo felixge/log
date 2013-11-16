@@ -14,9 +14,9 @@ type FileWriterConfig struct {
 	Formatter    Formatter
 	RotateSignal os.Signal
 	ErrorHandler ErrorHandler
-	Capacity     int
-	Blocking     bool
 	BufSize      int
+	Blocking     bool
+	Capacity     int
 }
 
 type FileWriter struct {

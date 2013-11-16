@@ -33,16 +33,16 @@ var (
 		RotateSignal: syscall.SIGUSR1,
 		ErrorHandler: DefaultErrorHandler,
 		BufSize:      DefaultBufSize,
-		Capacity:     1024,
 		Blocking:     false,
+		Capacity:     1024,
 	}
 	DefaultTermConfig = FileWriterConfig{
 		Writer:       os.Stdout,
 		Formatter:    DefaultColorFormatter,
 		ErrorHandler: DefaultErrorHandler,
 		BufSize:      DefaultBufSize,
-		Capacity:     0,
 		Blocking:     true,
+		Capacity:     0,
 	}
 	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
 	DefaultLogger = NewLogger(DefaultConfig, DefaultWriter)
