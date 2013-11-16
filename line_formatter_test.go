@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestLineFormatterFormat_defaultFormat(t *testing.T) {
+func TestLineFormatterFormat_defaultLayout(t *testing.T) {
 	e := Entry{
 		Time:     time.Now(),
 		Level:    INFO,
@@ -19,7 +19,7 @@ func TestLineFormatterFormat_defaultFormat(t *testing.T) {
 	f := NewLineFormatter(DefaultLayout, nil)
 	str := f.Format(e)
 	expected := fmt.Sprintf(
-		"[%s UTC] [%s] %s (%s:%d)",
+		"[%s UTC] [%s] %s (%s:%d)\n",
 		e.Time.UTC().Format("2006-01-02 15:04:05.000"),
 		INFO,
 		e.Message,
@@ -44,7 +44,7 @@ func TestLineFormatterFormat_customFormat(t *testing.T) {
 	f := NewLineFormatter("2006/01/02 15:04:05.000 level message file/line/function", nil)
 	str := f.Format(e)
 	expected := fmt.Sprintf(
-		"%s %s %s %s/%d/%s",
+		"%s %s %s %s/%d/%s\n",
 		e.Time.Format("2006/01/02 15:04:05.000"),
 		INFO,
 		e.Message,

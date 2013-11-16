@@ -8,7 +8,7 @@ import (
 )
 
 func NewLineFormatter(layout string, style map[Level]TermStyle) *LineFormatter {
-	f := &LineFormatter{layout: layout}
+	f := &LineFormatter{layout: layout, style: style}
 	f.compile()
 	return f
 }
@@ -17,6 +17,7 @@ type LineFormatter struct {
 	layout    string
 	isUTC     bool
 	positions positions
+	style map[Level]TermStyle
 }
 
 type positions []position
@@ -70,7 +71,11 @@ func (f *LineFormatter) Format(e Entry) string {
 		args[i] = val
 	}
 
-	return fmt.Sprintf(layout, args...)
+	if style, ok := f.style[e.Level]; ok {
+		layout = style.Format(layout)
+	}
+
+	return fmt.Sprintf(layout, args...)+"\n"
 }
 
 // 2006/01/02 15:04:05.000 level message file/line/function
