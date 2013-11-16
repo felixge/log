@@ -40,7 +40,7 @@ func NewFileWriterConfig(config FileWriterConfig) *FileWriter {
 		w.buf = bufio.NewWriterSize(config.Writer, config.BufSize)
 	} else {
 		if config.RotateSignal != nil {
-			rotateCh := make(chan os.Signal)
+			rotateCh := make(chan os.Signal, 1)
 			signal.Notify(rotateCh, config.RotateSignal)
 			go w.rotateLoop(rotateCh)
 		}
