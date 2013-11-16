@@ -14,7 +14,11 @@ var (
 		FATAL: White | BgRed,
 	}
 	DefaultFormatter = NewLineFormatter(DefaultLayout, DefaultTermStyle)
-	DefaultLogger    = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormatter))
+	DefaultConfig    = Config{
+		FlushTimeout: 30 * time.Second,
+		FatalExit:    true,
+	}
+	DefaultLogger = NewLogger(DefaultConfig, NewLineHandler(os.Stdout, DefaultFormatter))
 )
 
 func Debug(args ...interface{}) {

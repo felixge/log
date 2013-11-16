@@ -17,11 +17,6 @@ type Config struct {
 	FatalExit    bool
 }
 
-var DefaultConfig = Config{
-	FlushTimeout: 30 * time.Second,
-	FatalExit:    true,
-}
-
 func NewLogger(config Config, handlers ...Handler) *Logger {
 	l := &Logger{config: config}
 	for _, h := range handlers {
