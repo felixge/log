@@ -17,13 +17,15 @@ type FileWriterConfig struct {
 	BufSize      int
 	Blocking     bool
 	Capacity     int
+	GoRoutines   int
 }
 
 type FileWriter struct {
-	config FileWriterConfig
-	file   *os.File
-	buf    *bufio.Writer
-	opCh   chan interface{}
+	config  FileWriterConfig
+	file    *os.File
+	buf     *bufio.Writer
+	opCh    chan interface{}
+	entryCh chan Entry
 }
 
 type flushReq chan struct{}
@@ -32,8 +34,9 @@ type rotateReq struct{}
 
 func NewFileWriterConfig(config FileWriterConfig) *FileWriter {
 	w := &FileWriter{
-		config: config,
-		opCh:   make(chan interface{}, config.Capacity),
+		config:  config,
+		opCh:    make(chan interface{}, config.Capacity),
+		entryCh: make(chan Entry, config.Capacity),
 	}
 
 	if config.Writer != nil {
@@ -48,6 +51,9 @@ func NewFileWriterConfig(config FileWriterConfig) *FileWriter {
 	}
 
 	go w.opLoop()
+	for i := 0; i < config.GoRoutines; i++ {
+		go w.entryLoop()
+	}
 	return w
 }
 
@@ -59,12 +65,12 @@ func NewFileWriter(path string) *FileWriter {
 
 func (w *FileWriter) Log(entry Entry) {
 	if w.config.Blocking {
-		w.opCh <- entry
+		w.entryCh <- entry
 		return
 	}
 
 	select {
-	case w.opCh <- entry:
+	case w.entryCh <- entry:
 	default:
 		w.error(&ErrEntryDropped{entry})
 		return
@@ -92,7 +98,7 @@ func (w *FileWriter) open() {
 func (w *FileWriter) opLoop() {
 	for op := range w.opCh {
 		switch t := op.(type) {
-		case Entry:
+		case string:
 			w.log(t)
 		case flushReq:
 			w.flush(t)
@@ -102,9 +108,15 @@ func (w *FileWriter) opLoop() {
 	}
 }
 
-func (w *FileWriter) log(e Entry) {
-	formatted := w.config.Formatter.Format(e)
-	if _, err := w.buf.WriteString(formatted); err != nil {
+func (w *FileWriter) entryLoop() {
+	for {
+		event := <-w.entryCh
+		w.opCh <- w.config.Formatter.Format(event)
+	}
+}
+
+func (w *FileWriter) log(message string) {
+	if _, err := w.buf.WriteString(message); err != nil {
 		w.error(err)
 	}
 }

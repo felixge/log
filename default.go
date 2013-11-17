@@ -3,6 +3,7 @@ package log
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"syscall"
 	"time"
 )
@@ -36,6 +37,7 @@ var (
 		BufSize:      DefaultBufSize,
 		Blocking:     false,
 		Capacity:     1024,
+		GoRoutines:   runtime.NumCPU(),
 	}
 	DefaultTermConfig = FileWriterConfig{
 		Writer:       os.Stdout,
@@ -44,6 +46,7 @@ var (
 		BufSize:      DefaultBufSize,
 		Blocking:     true,
 		Capacity:     0,
+		GoRoutines:   1,
 	}
 	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
 	DefaultLogger = NewLogger(DefaultConfig, DefaultWriter)
