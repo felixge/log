@@ -30,23 +30,23 @@ var (
 	}
 	DefaultBufSize          = 4096
 	DefaultFileWriterConfig = FileWriterConfig{
-		Perm:         0600,
-		Formatter:    DefaultFormatter,
-		RotateSignal: syscall.SIGUSR1,
-		ErrorHandler: DefaultErrorHandler,
-		BufSize:      DefaultBufSize,
-		Blocking:     false,
-		Capacity:     1024,
-		GoRoutines:   runtime.NumCPU(),
+		Perm:           0600,
+		Formatter:      DefaultFormatter,
+		RotateSignal:   syscall.SIGUSR1,
+		ErrorHandler:   DefaultErrorHandler,
+		BufSize:        DefaultBufSize,
+		Blocking:       false,
+		Capacity:       1024,
+		FormatRoutines: runtime.NumCPU(),
 	}
 	DefaultTermConfig = FileWriterConfig{
-		Writer:       os.Stdout,
-		Formatter:    DefaultColorFormatter,
-		ErrorHandler: DefaultErrorHandler,
-		BufSize:      DefaultBufSize,
-		Blocking:     true,
-		Capacity:     0,
-		GoRoutines:   1,
+		Writer:         os.Stdout,
+		Formatter:      DefaultColorFormatter,
+		ErrorHandler:   DefaultErrorHandler,
+		BufSize:        DefaultBufSize,
+		Blocking:       true,
+		Capacity:       0,
+		FormatRoutines: 1,
 	}
 	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
 	DefaultLogger = NewLogger(DefaultConfig, DefaultWriter)

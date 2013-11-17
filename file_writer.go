@@ -8,16 +8,16 @@ import (
 )
 
 type FileWriterConfig struct {
-	Path         string
-	Perm         os.FileMode
-	Writer       io.Writer
-	Formatter    Formatter
-	RotateSignal os.Signal
-	ErrorHandler ErrorHandler
-	BufSize      int
-	Blocking     bool
-	Capacity     int
-	GoRoutines   int
+	Path           string
+	Perm           os.FileMode
+	Writer         io.Writer
+	Formatter      Formatter
+	RotateSignal   os.Signal
+	ErrorHandler   ErrorHandler
+	BufSize        int
+	Blocking       bool
+	Capacity       int
+	FormatRoutines int
 }
 
 type FileWriter struct {
@@ -51,7 +51,7 @@ func NewFileWriterConfig(config FileWriterConfig) *FileWriter {
 	}
 
 	go w.opLoop()
-	for i := 0; i < config.GoRoutines; i++ {
+	for i := 0; i < config.FormatRoutines; i++ {
 		go w.entryLoop()
 	}
 	return w
