@@ -8,22 +8,26 @@ import (
 )
 
 type FileWriterConfig struct {
-	Path           string
-	Perm           os.FileMode
-	Writer         io.Writer
-	Formatter      Formatter
-	RotateSignal   os.Signal
-	ErrorHandler   ErrorHandler
-	BufSize        int
-	Blocking       bool
-	Capacity       int
+	Path         string
+	Perm         os.FileMode
+	Writer       io.Writer
+	Formatter    Formatter
+	RotateSignal os.Signal
+	ErrorHandler ErrorHandler
+	BufSize      int
+	Blocking     bool
+	Capacity     int
 }
 
 type FileWriter struct {
-	config  FileWriterConfig
-	file    *os.File
-	buf     *bufio.Writer
-	opCh    chan interface{}
+	config FileWriterConfig
+	file   *os.File
+	writer io.Writer
+	opCh   chan interface{}
+}
+
+type flusher interface {
+	Flush() error
 }
 
 type flushReq chan struct{}
@@ -32,12 +36,12 @@ type rotateReq struct{}
 
 func NewFileWriterConfig(config FileWriterConfig) *FileWriter {
 	w := &FileWriter{
-		config:  config,
-		opCh:    make(chan interface{}, config.Capacity),
+		config: config,
+		opCh:   make(chan interface{}, config.Capacity),
 	}
 
 	if config.Writer != nil {
-		w.buf = bufio.NewWriterSize(config.Writer, config.BufSize)
+		w.setWriter(config.Writer, config.BufSize)
 	} else {
 		if config.RotateSignal != nil {
 			rotateCh := make(chan os.Signal, 1)
@@ -84,11 +88,11 @@ func (w *FileWriter) open() {
 	if err != nil {
 		w.error(err)
 		w.file = nil
-		w.buf = nil
+		w.writer = nil
 		return
 	}
 	w.file = file
-	w.buf = bufio.NewWriterSize(w.file, w.config.BufSize)
+	w.setWriter(file, w.config.BufSize)
 }
 
 func (w *FileWriter) opLoop() {
@@ -97,24 +101,34 @@ func (w *FileWriter) opLoop() {
 		case string:
 			w.log(t)
 		case flushReq:
-			w.flush(t)
+			w.flush()
+			t <- struct{}{}
 		case rotateReq:
 			w.rotate()
 		}
 	}
 }
 
+func (w *FileWriter) setWriter(writer io.Writer, bufSize int) {
+	if bufSize > 0 {
+		w.writer = bufio.NewWriterSize(writer, bufSize)
+		return
+	}
+	w.writer = writer
+}
+
 func (w *FileWriter) log(message string) {
-	if _, err := w.buf.WriteString(message); err != nil {
+	if _, err := io.WriteString(w.writer, message); err != nil {
 		w.error(err)
 	}
 }
 
-func (w *FileWriter) flush(req flushReq) {
-	if err := w.buf.Flush(); err != nil {
-		w.error(err)
+func (w *FileWriter) flush() {
+	if flusher, ok := w.writer.(flusher); ok {
+		if err := flusher.Flush(); err != nil {
+			w.error(err)
+		}
 	}
-	req <- struct{}{}
 }
 
 func (w *FileWriter) rotateLoop(rotateCh <-chan os.Signal) {
@@ -124,9 +138,7 @@ func (w *FileWriter) rotateLoop(rotateCh <-chan os.Signal) {
 }
 
 func (w *FileWriter) rotate() {
-	if err := w.buf.Flush(); err != nil {
-		w.error(err)
-	}
+	w.flush()
 	if err := w.file.Close(); err != nil {
 		w.error(err)
 	}

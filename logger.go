@@ -106,7 +106,7 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 
 func (l *Logger) log(lvl Level, args []interface{}) Entry {
 	e := NewEntry(lvl, args...)
-	e.Stack = CaptureStack(4, 1)
+	e.Stack = CaptureStack(3, 1)
 
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
