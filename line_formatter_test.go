@@ -9,12 +9,10 @@ import (
 func TestLineFormatterFormat_defaultLayout(t *testing.T) {
 	message := "foo"
 	e := Entry{
-		Time:     time.Now(),
-		Level:    INFO,
-		Args:     []interface{}{message},
-		File:     "bar.go",
-		Line:     23,
-		Function: "foo.bar",
+		Time:  time.Now(),
+		Level: INFO,
+		Args:  []interface{}{message},
+		Stack: []StackFrame{{file: "bar.go", line: 23, function: "foo.bar"}},
 	}
 
 	f := NewLineFormatter(DefaultLayout, nil)
@@ -24,8 +22,8 @@ func TestLineFormatterFormat_defaultLayout(t *testing.T) {
 		e.Time.UTC().Format("2006-01-02 15:04:05.000"),
 		INFO,
 		message,
-		e.Function,
-		e.Line,
+		e.Function(),
+		e.Line(),
 	)
 	if str != expected {
 		t.Errorf("Bad result: %q != %q", str, expected)
@@ -38,9 +36,7 @@ func TestLineFormatterFormat_customFormat(t *testing.T) {
 		Time:     time.Now(),
 		Level:    INFO,
 		Args:     []interface{}{message},
-		File:     "bar.go",
-		Line:     23,
-		Function: "foo.bar",
+		Stack: []StackFrame{{file: "bar.go", line: 23, function: "foo.bar"}},
 	}
 
 	f := NewLineFormatter("2006/01/02 15:04:05.000 level message file/line/function", nil)
@@ -50,9 +46,9 @@ func TestLineFormatterFormat_customFormat(t *testing.T) {
 		e.Time.Format("2006/01/02 15:04:05.000"),
 		INFO,
 		message,
-		e.File,
-		e.Line,
-		e.Function,
+		e.File(),
+		e.Line(),
+		e.Function(),
 	)
 	if str != expected {
 		t.Errorf("Bad result: %q != %q", str, expected)

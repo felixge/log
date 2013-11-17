@@ -40,8 +40,8 @@ type position struct {
 var tokens = map[string]string{
 	"line":     "%d",
 	"file":     "%s",
-	"level":    "%s",
 	"function": "%s",
+	"level":    "%s",
 	"message":  "%s",
 }
 
@@ -57,14 +57,14 @@ func (f *LineFormatter) Format(e Entry) string {
 	for i, p := range f.positions {
 		var val interface{}
 		switch p.token {
-		case "line":
-			val = e.Line
-		case "file":
-			val = e.File
 		case "level":
 			val = e.Level
+		case "line":
+			val = e.Line()
+		case "file":
+			val = e.File()
 		case "function":
-			val = e.Function
+			val = e.Function()
 		case "message":
 			val = f.formatMessage(e.Args)
 		}
