@@ -28,13 +28,14 @@ var (
 		fmt.Fprint(os.Stderr, DefaultFormatter.Format(e))
 	}
 	DefaultFileWriterConfig = FileWriterConfig{
-		Perm:         0600,
-		Formatter:    DefaultFormatter,
-		RotateSignal: syscall.SIGUSR1,
-		ErrorHandler: DefaultErrorHandler,
-		Blocking:     false,
-		Capacity:     1024,
-		BufSize:      4096,
+		Perm:          0600,
+		Formatter:     DefaultFormatter,
+		RotateSignal:  syscall.SIGUSR1,
+		ErrorHandler:  DefaultErrorHandler,
+		Blocking:      false,
+		Capacity:      1024,
+		BufSize:       4096,
+		FlushInterval: time.Second,
 	}
 	DefaultTermConfig = FileWriterConfig{
 		Writer:       os.Stdout,

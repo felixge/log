@@ -5,18 +5,20 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"time"
 )
 
 type FileWriterConfig struct {
-	Path         string
-	Perm         os.FileMode
-	Writer       io.Writer
-	Formatter    Formatter
-	RotateSignal os.Signal
-	ErrorHandler ErrorHandler
-	BufSize      int
-	Blocking     bool
-	Capacity     int
+	Path          string
+	Perm          os.FileMode
+	Writer        io.Writer
+	Formatter     Formatter
+	RotateSignal  os.Signal
+	ErrorHandler  ErrorHandler
+	BufSize       int
+	FlushInterval time.Duration
+	Blocking      bool
+	Capacity      int
 }
 
 type FileWriter struct {
@@ -112,9 +114,19 @@ func (w *FileWriter) opLoop() {
 func (w *FileWriter) setWriter(writer io.Writer, bufSize int) {
 	if bufSize > 0 {
 		w.writer = bufio.NewWriterSize(writer, bufSize)
+		if w.config.FlushInterval != 0 {
+			go w.flushLoop()
+		}
 		return
 	}
 	w.writer = writer
+}
+
+func (w *FileWriter) flushLoop() {
+	for {
+		w.Flush()
+		time.Sleep(w.config.FlushInterval)
+	}
 }
 
 func (w *FileWriter) log(message string) {
