@@ -1,4 +1,4 @@
-**WORK IN PROGRESS:** Please come back later
+**WORK IN PROGRESS:** Please come back later.
 
 # log
 
@@ -74,3 +74,5 @@ So if you'd like to sleep well, knowing that the CPU overhead of your logger is
 negligible, package log is for you.
 
 ## Missing Features
+
+@TODO Describe missing features.
