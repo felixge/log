@@ -4,6 +4,9 @@
 
 Package log is an attempt to provide the best logging library for Go.
 
+However, it is currently still a work in progress, and you are not supposed to
+use this yet.
+
 ## Good by Default
 
 ```go
