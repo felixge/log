@@ -79,12 +79,26 @@ func (f *LineFormatter) Format(e Entry) string {
 }
 
 func (f *LineFormatter) formatMessage(args []interface{}) string {
-	if len(args) > 0 {
-		if formatMessage, ok := args[0].(string); ok {
-			return fmt.Sprintf(formatMessage, args[1:]...)
+	fullContext := Context{}
+	for i, arg := range args {
+		if context, ok := arg.(Context); ok {
+			for key, val := range context {
+				fullContext[key] = val
+			}
+			args = append(args[0:i], args[i+1:]...)
 		}
 	}
-	return fmt.Sprint(args...)
+	contextString := ""
+	for key, val := range fullContext {
+		contextString += " " + key + "=" + fmt.Sprint(val)
+	}
+
+	if len(args) > 0 {
+		if formatMessage, ok := args[0].(string); ok {
+			return fmt.Sprintf(formatMessage, args[1:]...)+contextString
+		}
+	}
+	return fmt.Sprint(args...) + contextString
 }
 
 // 2006/01/02 15:04:05.000 level message file/line/function

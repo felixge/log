@@ -7,8 +7,7 @@ type Interface interface {
 	Info(args ...interface{})
 	Warn(args ...interface{})
 	Error(args ...interface{}) error
-	Fatal(args ...interface{})
-	Panic()
+	Panic(args ...interface{})
 }
 
 // Handler is used to implement log handlers.

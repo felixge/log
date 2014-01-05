@@ -32,7 +32,7 @@ const (
 	INFO               // Regular event (e.g. user login)
 	WARN               // Undesireable event (e.g. invalid user input)
 	ERROR              // E-mail somebody (e.g. could not save record)
-	FATAL              // Call somebody (e.g. database down)
+	PANIC              // Call somebody (e.g. database down)
 )
 
 var levels = map[Level]string{
@@ -40,5 +40,5 @@ var levels = map[Level]string{
 	INFO:  "info",
 	WARN:  "warn",
 	ERROR: "error",
-	FATAL: "fatal",
+	PANIC: "panic",
 }

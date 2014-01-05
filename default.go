@@ -14,14 +14,13 @@ var (
 		INFO:  0,
 		WARN:  Yellow,
 		ERROR: Red,
-		FATAL: White | BgRed,
+		PANIC: White | BgRed,
 	}
 	DefaultFormatter        = NewLineFormatter(DefaultLayout, nil)
 	DefaultColorFormatter   = NewLineFormatter(DefaultLayout, DefaultTermStyle)
 	DefaultMessageFormatter = NewLineFormatter("message", nil)
 	DefaultConfig           = Config{
 		FlushTimeout: 30 * time.Second,
-		FatalExit:    true,
 	}
 	DefaultErrorHandler = func(err error) {
 		e := NewEntry(ERROR, "%s", err)
@@ -44,27 +43,30 @@ var (
 		Blocking:     true,
 	}
 	DefaultWriter = NewFileWriterConfig(DefaultTermConfig)
+
 	DefaultLogger = NewLogger(DefaultConfig, DefaultWriter)
 )
 
 func Debug(args ...interface{}) {
-	DefaultLogger.Debug(args...)
+	DefaultLogger.Log(NewEntryWithStack(DEBUG, 3, 1, args...))
 }
 
 func Info(args ...interface{}) {
-	DefaultLogger.Info(args...)
+	DefaultLogger.Log(NewEntryWithStack(INFO, 3, 1, args...))
 }
 
 func Warn(args ...interface{}) {
-	DefaultLogger.Warn(args...)
+	DefaultLogger.Log(NewEntryWithStack(WARN, 3, 1, args...))
 }
 
 func Error(args ...interface{}) error {
-	return DefaultLogger.Error(args...)
+	e := NewEntryWithStack(ERROR, 3, 1, args...)
+	DefaultLogger.Log(e)
+	return NewError(e)
 }
 
-func Fatal(args ...interface{}) {
-	DefaultLogger.Fatal(args...)
+func Panic(args ...interface{}) {
+	DefaultLogger.Log(NewEntryWithStack(PANIC, 3, 1, args...))
 }
 
 // @TODO Panic level

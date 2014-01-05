@@ -5,11 +5,21 @@ import (
 	"time"
 )
 
+// @TODO remove?
 func NewEntry(lvl Level, args ...interface{}) Entry {
 	return Entry{
 		Time:  time.Now(),
 		Level: lvl,
 		Args:  args,
+	}
+}
+
+func NewEntryWithStack(lvl Level, skip int, count int, args ...interface{}) Entry {
+	return Entry{
+		Time:  time.Now(),
+		Level: lvl,
+		Args:  args,
+		Stack: CaptureStack(skip, count),
 	}
 }
 

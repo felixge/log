@@ -2,7 +2,6 @@ package log
 
 import (
 	"errors"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -14,7 +13,6 @@ var (
 
 type Config struct {
 	FlushTimeout time.Duration
-	FatalExit    bool
 }
 
 func NewLogger(config Config, handlers ...Handler) *Logger {
@@ -35,47 +33,40 @@ type logHandler struct {
 	handler Handler
 }
 
+func NewError(e Entry) error {
+	message := DefaultMessageFormatter.Format(e)
+	message = strings.TrimRight(message, "\n")
+	return errors.New(message)
+}
+
 // Debug logs at the Debug level.
 func (l *Logger) Debug(args ...interface{}) {
-	l.log(DEBUG, args)
+	l.Log(NewEntryWithStack(DEBUG, 3, 1, args...))
 }
 
 // Debug logs at the Info level.
 func (l *Logger) Info(args ...interface{}) {
-	l.log(INFO, args)
+	l.Log(NewEntryWithStack(INFO, 3, 1, args...))
 }
 
 // Warn logs at the Warn level.
 func (l *Logger) Warn(args ...interface{}) {
-	l.log(WARN, args)
+	l.Log(NewEntryWithStack(WARN, 3, 1, args...))
 }
 
 // Error logs at the Error level and returns the formatted error message as
 // an error for convenience.
 func (l *Logger) Error(args ...interface{}) error {
-	message := DefaultMessageFormatter.Format((l.log(ERROR, args)))
-	message = strings.TrimRight(message, "\n")
-	return errors.New(message)
+	e := NewEntryWithStack(ERROR, 3, 1, args...)
+	l.Log(e)
+	return NewError(e)
 }
 
-// Fatal logs at the Fatal level, calls Flush() and then os.Exit(1).
-func (l *Logger) Fatal(args ...interface{}) {
-	l.log(FATAL, args)
-	l.Flush()
-	if l.config.FatalExit {
-		os.Exit(1)
-	}
-}
-
-func (l *Logger) Panic() {
-	if p := recover(); p != nil {
-		switch p.(type) {
-		case string:
-			l.Fatal("panic: %s", p)
-		default:
-			l.Fatal("panic: %#v", p)
-		}
-	}
+// Panic logs at the Panic level, calls Flush() and then os.Exit(1).
+func (l *Logger) Panic(args ...interface{}) {
+	e := NewEntryWithStack(PANIC, 3, 1, args...)
+	l.Log(e)
+	panic(NewError(e))
 }
 
 func (l *Logger) Flush() error {
@@ -104,14 +95,10 @@ func (l *Logger) Handle(lvl Level, handler Handler) {
 	l.handlers = append(l.handlers, &logHandler{lvl, handler})
 }
 
-func (l *Logger) log(lvl Level, args []interface{}) Entry {
-	e := NewEntry(lvl, args...)
-	e.Stack = CaptureStack(3, 1)
-
+func (l *Logger) Log(e Entry) {
 	for _, h := range l.handlers {
 		if e.Level >= h.lvl {
 			h.handler.Log(e)
 		}
 	}
-	return e
 }
